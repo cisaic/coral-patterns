@@ -40,10 +40,16 @@ Directories:
 Files:
 
 - **setup.py**  
-  Configures the package and its dependencies. Allows for easy reproduction of the development environment. 
+  Configures the package and its dependencies. Allows for easy reproduction of the development environment. Please add any new dependencies you install to this file so we are all working with the same environment.
 
 - **genai-usage.md**  
   Documents generative AI tool usage in the project.
 
+# Background
+Here we will provide a brief intro to the project
 
+# Model description
+Here we will describe our model
 
+# References 
+[1] Sample Reference 

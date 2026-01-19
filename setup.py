@@ -1,9 +1,8 @@
 from setuptools import setup, find_packages
 
-setup(name='coral-patterns',
+setup(name='coral_patterns',
       version='1.0.0',
-      packages=find_packages(where='coral-patterns'),
-      package_dir={'': 'coral-patterns'},
+      packages=find_packages(),
       authors=[
           {'name': 'Myriam Belkhatir', 'email': 'myriam.belkhatir@student.uva.nl'},
           {'name': 'Zoe Busche', 'email': 'zoe.busche@student.uva.nl'},
