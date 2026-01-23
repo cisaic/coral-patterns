@@ -1,5 +1,5 @@
 from coral_patterns.dla_baseline import DEFAULTS, simulate_dla
-from coral_patterns.plotting import plot_cluster, plot_mass_radius, plot_mass_over_time
+from coral_patterns.plotting_dla import plot_cluster, plot_mass_radius, plot_mass_over_time
 
 
 PLOT_DEFAULTS = {
