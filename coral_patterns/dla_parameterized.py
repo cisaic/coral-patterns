@@ -160,19 +160,19 @@ def growth_mode_probability(cluster, stuck, growth_mode, available_neighbors_ind
 
     if growth_mode <= -0.5:
         # Interpolate between weights_horizontal (at -1) and weights_diagonal_sides (at -0.5)
-        interpolation = (growth_mode + 1.0) / 0.5  # t=0 at -1, t=1 at -0.5
+        interpolation = (growth_mode + 1.0) / 0.5  # interpolation=0 at -1, interpolation=1 at -0.5
         probabilities = (1 - interpolation) * weights_horizontal + interpolation * weights_diagonal_sides
     elif growth_mode <= 0.0:
         # Interpolate between weights_diagonal_sides (at -0.5) and weights_uniform (at 0)
-        interpolation = (growth_mode + 0.5) / 0.5  # t=0 at -0.5, t=1 at 0
+        interpolation = (growth_mode + 0.5) / 0.5  # interpolation=0 at -0.5, interpolation=1 at 0
         probabilities = (1 - interpolation) * weights_diagonal_sides + interpolation * weights_uniform
     elif growth_mode < 0.5:
         # Interpolate between weights_uniform (at 0) and weights_diagonal_top (at 0.5)
-        interpolation = (growth_mode - 0.0) / 0.5  # t=0 at 0, t=1 at 0.5
+        interpolation = (growth_mode - 0.0) / 0.5  # interpolation=0 at 0, interpolation=1 at 0.5
         probabilities = (1 - interpolation) * weights_uniform + interpolation * weights_diagonal_top
     else:
         # Interpolate between weights_diagonal_top (at 0.5) and weights_vertical (at 1)
-        interpolation = (growth_mode - 0.5) / 0.5  # t=0 at 0.5, t=1 at 1
+        interpolation = (growth_mode - 0.5) / 0.5  # interpolation=0 at 0.5, interpolation=1 at 1
         probabilities = (1 - interpolation) * weights_diagonal_top + interpolation * weights_vertical
     
     probabilities = normalize_probabilities(probabilities)
