@@ -22,16 +22,16 @@ import numpy as np
 #Parameters section, you can edit them here to test different combinations
 
 DEFAULTS = {
-    "target_mass": 3000,
+    "target_mass": 2000,
     "launch_margin": 6,
     "kill_margin": 25,
     "max_steps_per_walker": 80_000,
     "rng_seed": 1,
     "log_every": 200,
-    "growth_mode": 0.99,
-    "friendliness": 1,
-    "neighborhood_radius": 2,
-    "sharpness": 2,
+    "growth_mode": -0.99,
+    "friendliness": 0,
+    "neighborhood_radius": 1,
+    "sharpness": 1,
 }
 
 PLOT_DEFAULTS = {
@@ -319,6 +319,7 @@ def simulate_dla(
     neighborhood = generate_neighborhood(neighborhood_radius)
 
     cluster = {origin}
+    cluster_history = [origin]
     # frontier = build_frontier(cluster)
 
     mass_history = [1]
@@ -352,6 +353,7 @@ def simulate_dla(
 
             # Attach to the cluster
             cluster.add(new_site)
+            cluster_history.append(new_site)
             pbar.update(1)
             # print("")
             
@@ -365,7 +367,7 @@ def simulate_dla(
             if log_every and (len(cluster) % log_every == 0):
                 print(f"[DLA] mass={len(cluster)}  R~{radius_from_r2(max_r2)}")
 
-    return cluster, origin, mass_history, max_r2
+    return cluster, cluster_history, origin, mass_history, max_r2
 
 
 # Measurements: M(r) and fractal dimension

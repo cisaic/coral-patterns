@@ -12,9 +12,9 @@ PLOT_DEFAULTS = {
 
 def main():
     cfg = DEFAULTS.copy()
-    cluster, origin, mass_history, max_r2 = simulate_dla(**cfg)
+    cluster, cluster_history, origin, mass_history, max_r2 = simulate_dla(**cfg)
 
-    plot_cluster(cluster, title=PLOT_DEFAULTS["title_cluster"], point_size=PLOT_DEFAULTS["point_size"])
+    plot_cluster(cluster_history, title=PLOT_DEFAULTS["title_cluster"], point_size=PLOT_DEFAULTS["point_size"])
     plot_mass_radius(cluster, origin, max_r2, title=PLOT_DEFAULTS["title_mass_radius"])
     plot_mass_over_time(mass_history, title=PLOT_DEFAULTS["title_mass_time"])
 

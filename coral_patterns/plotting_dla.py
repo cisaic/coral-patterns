@@ -1,16 +1,20 @@
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 
 from coral_patterns.dla_baseline import estimate_fractal_dimension
 
 
-def plot_cluster(cluster, title="", point_size=0.6):
+def plot_cluster(cluster_history, title="", point_size=0.6):
     """Scatter plot of occupied lattice sites."""
-    xs = [x for (x, _) in cluster]
-    ys = [y for (_, y) in cluster]
+    xs = [x for (x, _) in cluster_history]
+    ys = [y for (_, y) in cluster_history]
+
+    # create a colour map for the history of the cluster growth, so the older sites are different colours from the younger ones
+    history = np.linspace(0, 1, len(cluster_history))
 
     plt.figure(figsize=(6, 6))
-    plt.scatter(xs, ys, s=point_size)
+    plt.scatter(xs, ys, s=point_size, c=history, cmap='cool', vmin=0, vmax=1)
     plt.gca().set_aspect("equal", "box")
     plt.axis("off")
     if title:
