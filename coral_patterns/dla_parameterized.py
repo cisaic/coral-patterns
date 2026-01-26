@@ -22,14 +22,14 @@ import numpy as np
 #Parameters section, you can edit them here to test different combinations
 
 DEFAULTS = {
-    "target_mass": 2000,
+    "target_mass": 1000,
     "launch_margin": 6,
     "kill_margin": 25,
     "max_steps_per_walker": 80_000,
     "rng_seed": 1,
     "log_every": 200,
     "growth_mode": -0.99,
-    "friendliness": 0,
+    "friendliness": 1,
     "neighborhood_radius": 1,
     "sharpness": 1,
 }
