@@ -1,12 +1,12 @@
 DEFAULTS = {
-    "target_mass": 2000,
+    "target_mass": 10000,
     "launch_margin": 6,
     "kill_margin": 25,
     "max_steps_per_walker": 80_000,
     "rng_seed": 1,
     "log_every": 200,
-    "growth_mode": 0.7, # defines whether to grow upward or downward 
-    "friendliness": 1, # sparsity preference measure 
+    "growth_mode": 0, # defines whether to grow upward or downward 
+    "friendliness": 0.5, # sparsity preference measure 
     "neighborhood_radius": 1,
     "sharpness": 1,
 }
@@ -21,4 +21,4 @@ PLOT_DEFAULTS = {
 
 NEIGHBORS4 = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 NEIGHBORS8 = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]
-VALID_NEIGHBORS = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0)] 
+VALID_NEIGHBORS = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0),] 
