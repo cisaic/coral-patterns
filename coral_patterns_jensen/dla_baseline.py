@@ -291,4 +291,3 @@ def estimate_fractal_dimension(
         "r_lo": r_lo,
         "r_hi": r_hi,
     }
-
