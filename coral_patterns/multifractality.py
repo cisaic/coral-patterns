@@ -2,10 +2,53 @@ from typing import Set, Tuple, List
 import numpy as np
 from tqdm import tqdm
 import random
+import os
+from multiprocessing import Pool
 
 from .config import DEFAULTS
 from .dla import run_walker
 from .helpers import radius_from_r2
+
+def compute_growth_probability_parallel(cluster: Set[Tuple[int, int]], max_r2: float, num_walkers: int):
+    """Parallelized version"""
+    origin = (0, 0)
+    R = radius_from_r2(max_r2)
+    launch_r = R + DEFAULTS["launch_margin"]
+    kill_r = launch_r + DEFAULTS["kill_margin"]
+    rng = random.Random(DEFAULTS["rng_seed"])
+    
+    # Prepare arguments for each walker (with unique seeds)
+    walker_args = (
+        cluster, origin, launch_r, kill_r, DEFAULTS["max_steps_per_walker"], 
+         rng)
+    
+    # Use all available cores
+    num_cores = os.cpu_count() - 1
+    print(f"Using {num_cores} cores")
+    
+    growth_counts = {site: 0 for site in cluster}
+    paths = []
+    
+    # Run walkers in parallel
+    with Pool(num_cores) as pool:
+        results = list(tqdm(
+            pool.imap_unordered(run_walker, walker_args),
+            total=num_walkers,
+            desc="Running walkers"
+        ))
+    
+    # Aggregate results
+    for growth_site, path in results:
+        if growth_site is not None:
+            growth_counts[growth_site] += 1
+            paths.append(path)
+    
+    growth_probabilities = {site: count / len(paths) for site, count in growth_counts.items()}
+    print(f"5 values with highest growth probabilities: {sorted(growth_probabilities.items(), key=lambda x: x[1], reverse=True)[:5]}")
+    print(f"Number of successful walkers: {len(paths)}")
+    
+    return growth_probabilities, paths
+
 
 def compute_growth_probability(cluster: Set[Tuple[int, int]], max_r2: float, num_walkers: int) -> float:
     """
@@ -34,15 +77,15 @@ def compute_growth_probability(cluster: Set[Tuple[int, int]], max_r2: float, num
                     max_steps=DEFAULTS["max_steps_per_walker"],
                     rng=rng,
                 )
-        
-        paths.append(path)
         if growth_site is not None:
             # print(f"Walker {i} grew on site {growth_site}")
             growth_counts[growth_site] += 1
+            paths.append(path)
 
-    growth_probabilities = {site: count / num_walkers for site, count in growth_counts.items()}
+    growth_probabilities = {site: count / len(paths) for site, count in growth_counts.items()}
     # 5 values with highest growth probabilities
     print(f"5 values with highest growth probabilities: {sorted(growth_probabilities.items(), key=lambda x: x[1], reverse=True)[:5]}")
+    print(f"Number of successful walkers: {len(paths)}")
 
     return growth_probabilities, paths
 
@@ -69,7 +112,7 @@ def compute_multifractality(
     print(f"Computing multifractality for cluster with {len(cluster)} sites")
     print(f"Launching {num_walkers} random walkers...")
 
-    growth_probabilities, paths = compute_growth_probability(cluster, max_r2, num_walkers)
+    growth_probabilities, paths = compute_growth_probability_parallel(cluster, max_r2, num_walkers)
     print(f"first 10 growth_probabilities: {list(growth_probabilities.values())[:10]}")
     print("--------------------------------")
     print(f"last 10 growth_probabilities: {list(growth_probabilities.values())[-10:]}")

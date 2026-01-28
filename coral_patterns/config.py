@@ -1,5 +1,5 @@
 DEFAULTS = {
-    "target_mass": 1000,
+    "target_mass": 500,
     "launch_margin": 6,
     "kill_margin": 25,
     "max_steps_per_walker": 80_000,
@@ -23,7 +23,7 @@ PLOT_DEFAULTS = {
 }
 
 MULTIFRACTALITY_DEFAULTS = {
-    "num_walkers": 1000,
+    "num_walkers": 80000,
 }
 
 
