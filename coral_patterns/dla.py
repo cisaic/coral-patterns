@@ -1,6 +1,7 @@
 import math
-import numpy as np 
-
+import numpy as np
+from typing import Any, List, Tuple, Set, Optional, Sequence
+import random
 
 from .config import VALID_NEIGHBORS
 from .helpers import (
@@ -11,8 +12,29 @@ from .helpers import (
     count_neighbors
 )
 
-# One random actual walker
-def run_walker(cluster, origin, launch_radius, kill_radius, max_steps, rng):
+# Diffusion-Limited Aggregation (DLA) — baseline on a 2D lattice
+#
+# Explanation:
+# - We start with one occupied seed at the origin ("on the ground")
+# - We repeatedly release a random walker from a semi-circle around the cluster (walkers not launched from below)
+# - The walker performs an unbiased random walk on the 8-neighborhood grid.
+# - As soon as it reaches a site adjacent to the cluster, it sticks with a given probability
+# - Probabilities are parameterized by:
+# -- growth_mode (preference for horizontal vs vertical growth) 
+# -- friendliness (preference for sites with more or fewer neighbors) 
+#
+# One small trick implemented to make the code more efficient :
+# - Incremental radius tracking: we store max distance^2 from the origin, so we don’t rescan the whole cluster all the time
+
+
+def run_walker(
+    cluster: Set[Tuple[int, int]],
+    origin: Tuple[int, int],
+    launch_radius: float,
+    kill_radius: float,
+    max_steps: int,
+    rng: random.Random 
+) -> Optional[Tuple[int, int]]:
     """
     One walker, baseline rules:
     - start on the launch circle
@@ -28,6 +50,8 @@ def run_walker(cluster, origin, launch_radius, kill_radius, max_steps, rng):
 
     x, y = launch_point(launch_radius, origin, rng)
 
+    path = [(x, y)]
+
     for _ in range(max_steps):
         # If it wanders too far, teleport it back to the launch circle
         if sqdist(x, y, ox, oy) > kill_r2:
@@ -36,17 +60,21 @@ def run_walker(cluster, origin, launch_radius, kill_radius, max_steps, rng):
 
         # Baseline sticking rule: stick when you are on a cluster site
         if (x, y) in cluster:
-            return (x, y)
+            return (x, y), path
 
         # Otherwise keep walking
         dx, dy = random_step(rng)
         x += dx
         y += dy
+        path.append((x, y))
 
     # If we hit max_steps, we give up on this walker and spawn a new one
-    return None
+    return None, path
 
-def find_available_neighbors(cluster, growth_site):
+def find_available_neighbors(
+    cluster: Set[Tuple[int, int]],
+    growth_site: Tuple[int, int]
+) -> Tuple[List[int], List[Tuple[int, int]]]:
     """
     Return the index of available neighbors for a given growth_site site that are not in the cluster
     """
@@ -66,8 +94,9 @@ def find_available_neighbors(cluster, growth_site):
     
     return available_neighbors_indices, available_neighbors
 
-
-def growth_mode_probability(growth_mode):
+def growth_mode_probability(
+    growth_mode: float
+) -> np.ndarray:
     """
     Probability distribution of neighbors to attach to given parameter: growth_mode (range -1 to 1)
     growth_mode = -1: Prefer horizontal growth
@@ -109,20 +138,28 @@ def growth_mode_probability(growth_mode):
         probabilities = (1 - interpolation) * weights_diagonal_top + interpolation * weights_vertical
     return normalize_probabilities(probabilities)
 
-
-def mask_probabilities(probabilities, available_neighbors_indices):
+def mask_probabilities(
+    probabilities: np.ndarray,
+    available_neighbors_indices: Sequence[int]
+) -> np.ndarray:
     """
     Mask out unavailable neighbors, assuming the available neighborhood
     """
     probabilities_masked = probabilities.copy()
-    all_indices = set(range(5))
+    all_indices = set(range(len(VALID_NEIGHBORS)))
 
     unavailable = all_indices - set(available_neighbors_indices)
     probabilities_masked[list(unavailable)] = 0.0
     return probabilities_masked
 
-
-def friendliness_probability(cluster, friendliness, available_neighbors, available_neighbors_indices, neighborhood, sharpness):
+def friendliness_probability(
+    cluster: Set[Tuple[int, int]],
+    friendliness: float,
+    available_neighbors: List[Tuple[int, int]],
+    available_neighbors_indices: List[int],
+    neighborhood: Sequence[Tuple[int, int]],
+    sharpness: float
+) -> np.ndarray:
     """
     Calculate the probabilities of attaching to a given site based on the number of neighbors
     Friendliness controls preference for attaching to sites with more or less neighbors
@@ -139,7 +176,7 @@ def friendliness_probability(cluster, friendliness, available_neighbors, availab
         neighbor_counts[idx] = count_neighbors(neighbor, cluster, neighborhood)
 
     if neighbor_counts.sum() == 0:
-        return np.zeros(len(VALID_NEIGHBORS))
+        return neighbor_counts
     
     # Normalize to [0, 1]
     min_count = neighbor_counts[neighbor_counts != 0].min()
@@ -166,8 +203,15 @@ def friendliness_probability(cluster, friendliness, available_neighbors, availab
     # print("--------------------------------")
     return probabilities
 
-
-def attach_to_cluster_neighborhood(cluster, growth_site, growth_mode, friendliness, neighborhood, sharpness, rng):
+def attach_to_cluster_neighborhood(
+    cluster: Set[Tuple[int, int]],
+    growth_site: Tuple[int, int],
+    growth_mode: float,
+    friendliness: float,
+    neighborhood: Sequence[Tuple[int, int]],
+    sharpness: float,
+    rng: random.Random 
+) -> Optional[Tuple[int, int]]:
     """
     Attach to the cluster neighborhood with parameterized probabilities
     """

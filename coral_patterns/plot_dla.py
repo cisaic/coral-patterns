@@ -1,11 +1,16 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import List, Tuple, Set, Dict
 
 from .helpers import estimate_fractal_dimension
 
 
-def plot_cluster(cluster_history, title="", point_size=0.6):
+def plot_cluster(
+    cluster_history: List[Tuple[int, int]],
+    title: str = "",
+    point_size: float = 0.6
+) -> None:
     """Scatter plot of occupied lattice sites."""
     xs = [x for (x, _) in cluster_history]
     ys = [y for (_, y) in cluster_history]
@@ -22,7 +27,12 @@ def plot_cluster(cluster_history, title="", point_size=0.6):
     plt.show()
 
 
-def plot_mass_radius(cluster, origin, max_r2, title=""):
+def plot_mass_radius(
+    cluster: Set[Tuple[int, int]],
+    origin: Tuple[int, int],
+    max_r2: float,
+    title: str = ""
+) -> None:
     """Log-log plot of M(r) vs r + fitted power law line."""
     out = estimate_fractal_dimension(cluster, origin, max_r2=max_r2)
     D = out["D"]
@@ -49,7 +59,10 @@ def plot_mass_radius(cluster, origin, max_r2, title=""):
     plt.show()
 
 
-def plot_mass_over_time(mass_history, title="Cluster mass over time"):
+def plot_mass_over_time(
+    mass_history: List[float],
+    title: str = "Cluster mass over time"
+) -> None:
     """M(t) plot."""
     plt.figure(figsize=(7, 4))
     plt.plot(mass_history)
@@ -57,4 +70,57 @@ def plot_mass_over_time(mass_history, title="Cluster mass over time"):
     plt.ylabel("M(t)")
     plt.title(title)
     plt.grid(alpha=0.3)
+    plt.show()
+
+def plot_multifractality(
+    q_range: List[float],
+    sigma_q: List[float],
+    title: str = "Multifractality"
+) -> None:
+    """Plot multifractality."""
+
+    # measure slope of the curve
+    coefficients = np.polyfit(q_range, sigma_q, deg=1)
+    slope = coefficients[0]
+    intercept = coefficients[1]
+
+    print(f"Slope (scaling exponent): {slope:.4f}")
+    print(f"Intercept: {intercept:.4f}")
+
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(q_range, slope * q_range + intercept, 'r-', linewidth=2, label=f'Linear fit: σ(q) = {slope:.3f}q + {intercept:.3f}')
+    plt.plot(q_range, sigma_q, 'o', label='Data', markersize=2)
+    plt.xlabel('q')
+    plt.ylabel('σ(q)')
+    plt.title(title)
+    plt.grid(True, alpha=0.3)
+    plt.legend()
+    plt.show()
+
+
+def plot_growth_probability(
+    growth_probabilities: Dict[Tuple[int, int], float],
+    paths: List[List[Tuple[int, int]]],
+    title: str = ""
+) -> None:
+    """Plot growth probability."""
+
+    xs = [x for (x, _) in growth_probabilities.keys()]
+    ys = [y for (_, y) in growth_probabilities.keys()]
+    colors = list(growth_probabilities.values())
+
+    plt.figure(figsize=(6, 6))
+    scatter = plt.scatter(xs, ys, s=0.6, c=colors, cmap='cool', vmin=min(colors), vmax=max(colors))
+    for path in paths[:1]:
+        if path:
+            # Plot the starting point as a red dot
+            plt.plot(path[0][0], path[0][1], 'ro', markersize=2)
+            # Plot the rest of the path as a grey line
+            if len(path) > 1:
+                plt.plot([x for (x, _) in path], [y for (_, y) in path], color='grey', alpha=0.1, linewidth=0.6)
+    plt.gca().set_aspect("equal", "box")
+    plt.axis("off")
+    plt.title("Growth Probabilities")
+    plt.colorbar(scatter, label='Growth Probability')
     plt.show()

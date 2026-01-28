@@ -1,24 +1,28 @@
 import math
+from typing import Any, Dict, Iterable, List, Set, Tuple
+import numpy as np 
 from .config import NEIGHBORS8
 
-def sqdist(x, y, ox=0, oy=0):
+def sqdist(x: int, y: int, ox: int = 0, oy: int = 0) -> int:
     """Squared distance from (x, y) to (ox, oy)."""
     dx = x - ox
     dy = y - oy
     return dx * dx + dy * dy
 
 
-def sqdist_point(p, origin):
+def sqdist_point(p: Tuple[int, int], origin: Tuple[int, int]) -> int:
     """Squared distance from p to origin."""
     return sqdist(p[0], p[1], origin[0], origin[1])
 
 
-def radius_from_r2(max_r2):
+def radius_from_r2(max_r2: float) -> int:
     """Convert max squared radius to an integer-ish radius."""
     return int(math.ceil(math.sqrt(max_r2)))
 
 
-def launch_point(radius, origin, rng):
+def launch_point(
+    radius: float, origin: Tuple[int, int], rng: Any
+) -> Tuple[int, int]:
     """
     Pick a lattice point approximately on a semicircle of given radius.
     This is a way to launch walkers around the cluster.
@@ -30,19 +34,19 @@ def launch_point(radius, origin, rng):
     return (x, y)
 
 
-def random_step(rng):
+def random_step(rng: Any, neighborhood = NEIGHBORS8) -> Tuple[int, int]:
     """One unbiased step (up/down/left/right)."""
-    return rng.choice(NEIGHBORS8)
+    return rng.choice(neighborhood)
 
 def estimate_fractal_dimension(
-    cluster,
-    origin,
-    max_r2,
-    n_points=30,
-    fit_low=0.15,
-    fit_high=0.65,
-    r_min_abs=5.0,
-):
+    cluster: Set[Tuple[int, int]],
+    origin: Tuple[int, int],
+    max_r2: float,
+    n_points: int = 30,
+    fit_low: float = 0.15,
+    fit_high: float = 0.65,
+    r_min_abs: float = 5.0,
+) -> Dict[str, Any]:
     """
     Estimate fractal dimension D from M(r) ~ r^D.
 
@@ -65,8 +69,8 @@ def estimate_fractal_dimension(
     M_list = [mass_in_radius(cluster, origin, r) for r in r_list]
 
     # Prepare log-log data
-    xs = []
-    ys = []
+    xs: List[float] = []
+    ys: List[float] = []
     for r, M in zip(r_list, M_list):
         if r > 0 and M > 0:
             xs.append(math.log(r))
@@ -84,7 +88,7 @@ def estimate_fractal_dimension(
         "r_hi": r_hi,
     }
 
-def logspace(a, b, n):
+def logspace(a: float, b: float, n: int) -> List[float]:
     """
     n points spaced evenly in log scale between a and b (a>0).
     This is useful for scaling laws.
@@ -98,7 +102,7 @@ def logspace(a, b, n):
     return [math.exp(la + (lb - la) * i / (n - 1)) for i in range(n)]
 
 
-def fit_line(xs, ys):
+def fit_line(xs: List[float], ys: List[float]) -> Tuple[float, float]:
     """
     Fit y = m x + c by least squares.
     Returns (m, c).
@@ -113,7 +117,7 @@ def fit_line(xs, ys):
     return m, c
 
 
-def normalize_probabilities(probabilities):
+def normalize_probabilities(probabilities: np.ndarray) -> np.ndarray:
     """
     Normalize probabilities to sum to 1
     """
@@ -125,11 +129,11 @@ def normalize_probabilities(probabilities):
 
 
 # Helper functions for neighborhood creation 
-def generate_neighborhood(radius):
+def generate_neighborhood(radius: int) -> List[Tuple[int, int]]:
     """
     Generate a neighborhood of sites within a given radius
     """
-    neighborhood = []
+    neighborhood: List[Tuple[int, int]] = []
     for x in range(-radius, radius + 1):
         for y in range(-radius, radius + 1):
             if x == 0 and y == 0:
@@ -138,7 +142,11 @@ def generate_neighborhood(radius):
     return neighborhood
 
 
-def count_neighbors(site, cluster, neighborhood):
+def count_neighbors(
+    site: Tuple[int, int],
+    cluster: Set[Tuple[int, int]],
+    neighborhood: Iterable[Tuple[int, int]],
+) -> int:
     """
     Count the number of neighbors of a given site in the cluster
     """
@@ -154,7 +162,11 @@ def count_neighbors(site, cluster, neighborhood):
 
 
 # Measurements: M(r) and fractal dimension
-def mass_in_radius(cluster, origin, r):
+def mass_in_radius(
+    cluster: Set[Tuple[int, int]],
+    origin: Tuple[int, int],
+    r: float
+) -> int:
     """M(r): number of occupied sites within distance <= r from origin."""
     r2 = r * r
     ox, oy = origin

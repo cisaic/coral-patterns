@@ -1,12 +1,11 @@
 import random
 from tqdm import tqdm
-
+from typing import Set, Tuple, List, Any
 
 from .helpers import (
     radius_from_r2,
     sqdist_point,
-    generate_neighborhood,
-    
+    generate_neighborhood, 
 )
 from .dla import (
     run_walker,
@@ -14,17 +13,17 @@ from .dla import (
 )
 
 def simulate_dla(
-    target_mass,
-    launch_margin,
-    kill_margin,
-    max_steps_per_walker,
-    rng_seed,
-    log_every,
-    growth_mode,
-    friendliness,
-    neighborhood_radius,
-    sharpness,
-):
+    target_mass: int,
+    launch_margin: float,
+    kill_margin: float,
+    max_steps_per_walker: int,
+    rng_seed: int,
+    log_every: int,
+    growth_mode: float,
+    friendliness: float,
+    neighborhood_radius: int,
+    sharpness: float,
+) -> Tuple[Set[Tuple[int, int]], List[Tuple[int, int]], Tuple[int, int], List[int], int]:
     """
     Baseline isotropic DLA on a 2D lattice.
 
@@ -41,6 +40,7 @@ def simulate_dla(
 
     cluster = {origin}
     cluster_history = [origin]
+    attachment_counts = {origin: 0}
     # frontier = build_frontier(cluster)
 
     mass_history = [1]
@@ -53,7 +53,7 @@ def simulate_dla(
             launch_r = R + launch_margin
             kill_r = launch_r + kill_margin
 
-            growth_site = run_walker(
+            growth_site, _ = run_walker(
                 cluster=cluster,
                 origin=origin,
                 launch_radius=launch_r,
@@ -67,7 +67,9 @@ def simulate_dla(
                 continue
 
             # attach to cluster neighborhood with probability
-            new_site = attach_to_cluster_neighborhood(cluster, growth_site, growth_mode, friendliness, neighborhood, sharpness, rng)
+            new_site = attach_to_cluster_neighborhood(
+                cluster, growth_site, growth_mode, friendliness, neighborhood, sharpness, rng
+            )
 
             if new_site is None:
                 continue
