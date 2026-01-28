@@ -5,10 +5,10 @@ DEFAULTS = {
     "max_steps_per_walker": 80_000,
     "rng_seed": 1,
     "log_every": 200,
-    "growth_mode": 0, # defines whether to grow upward or downward 
+    "growth_mode": -1, # defines whether to grow upward or downward 
     "friendliness": 0, # sparsity preference measure 
-    "neighborhood_radius": 2,
-    "sharpness": 2,
+    "neighborhood_radius": 1,
+    "sharpness": 1,
 }
 
 PLOT_DEFAULTS = {
