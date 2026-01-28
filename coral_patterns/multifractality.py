@@ -1,4 +1,4 @@
-from typing import Set, Tuple, List
+from typing import Set, Tuple, List, Dict, Any
 import numpy as np
 from tqdm import tqdm
 import random
@@ -6,10 +6,11 @@ import os
 from multiprocessing import Pool
 import gc
 import pickle
+from scipy.interpolate import interp1d
 
 from .config import DEFAULTS
 from .dla import run_walker
-from .helpers import radius_from_r2
+from .helpers import radius_from_r2, estimate_fractal_dimension
 
 def run_single_walker(args):
     """Wrapper function for multiprocessing"""
@@ -129,8 +130,9 @@ def compute_multifractality(
     max_r2: float, 
     num_walkers: int, 
     q_range: Tuple[float, float], 
-    q_steps: int
-) -> Tuple[List[float], List[float]]:
+    q_steps: int,
+    origin: Tuple[int, int] = (0, 0),
+) -> Tuple[List[float], List[float], Dict[Tuple[int, int], float], List[Tuple[int, int]], float, float, List[float], List[float], float, float, float]:
     """
     Compute the multifractality of a completed cluster
     Where:
@@ -157,6 +159,7 @@ def compute_multifractality(
     p_vals = np.array(list(growth_probabilities.values()))
 
     q_vals = np.linspace(q_range[0], q_range[1], q_steps)
+    print(f"length of q_range: {len(q_range)}")
 
     sigma_q = []
 
@@ -167,8 +170,97 @@ def compute_multifractality(
 
         print(f"q: {q}, sigma: {sigma}, sum_p_q: {sum_p_q}")
 
+    multifractality_data = multifractality_fit(q_vals, sigma_q)
+    slope_at_1 = multifractality_data["slope_at_1"]
+    sigma_at_1 = multifractality_data["sigma_at_1"]
+    q_tangent = multifractality_data["q_tangent"]
+    sigma_tangent = multifractality_data["sigma_tangent"]
+    slope_inf = multifractality_data["slope_inf"]
+    intercept_inf = multifractality_data["intercept_inf"]
+    sigma_at_3 = multifractality_data["sigma_at_3"]
+
+    fractal_dimension = estimate_fractal_dimension(cluster, origin, max_r2=max_r2)
+    print(f"Fractal dimension: {fractal_dimension}")
+
     # save to file
     with open(f"data/multifractality_mass-{DEFAULTS['target_mass']}_gm-{DEFAULTS['growth_mode']}_f-{DEFAULTS['friendliness']}_seed-{DEFAULTS['rng_seed']}_numwalkers-{num_walkers}.pkl", "wb") as f:
-        pickle.dump((q_vals, sigma_q, growth_probabilities, sample_path), f)
+        pickle.dump((q_vals, sigma_q, growth_probabilities, sample_path, slope_at_1, sigma_at_1, q_tangent, sigma_tangent, slope_inf, intercept_inf, sigma_at_3, fractal_dimension), f)
 
-    return q_vals, sigma_q, growth_probabilities, sample_path
+    return {
+        "q_vals": q_vals,
+        "sigma_q": sigma_q,
+        "growth_probabilities": growth_probabilities,
+        "sample_path": sample_path,
+        "slope_at_1": slope_at_1,
+        "sigma_at_1": sigma_at_1,
+        "q_tangent": q_tangent,
+        "sigma_tangent": sigma_tangent,
+        "slope_inf": slope_inf,
+        "intercept_inf": intercept_inf,
+        "sigma_at_3": sigma_at_3,
+        "fractal_dimension": fractal_dimension,
+    }
+
+def multifractality_fit(
+    q_vals: List[float],
+    sigma_q: List[float],
+) -> Tuple[float, float]:
+    """Behaviour of the multifractality curve as:
+     - as q -> infinity (slope should be linear and equal to D^2 - D)
+     - Around q = 1, slope should be 1/D
+     - At q = 3, sigma(q) should be equal to 1
+     Where:
+     - D is the fractal dimension of the cluster
+    """
+    
+    # ==================
+    # Measure slope as q -> infinity:
+    # ==================
+    # Fit end range of q vlaues to a linear function
+    print(f"length of q_vals: {len(q_vals)}")
+    print(f"length of sigma_q: {len(sigma_q)}")
+    slope_inf, intercept_inf = np.polyfit(q_vals[-10:], sigma_q[-10:], deg=1)
+
+    print(f"Slope at high q: {slope_inf:.4f}")
+    print(f"Intercept at high q: {intercept_inf:.4f}")
+    
+    # ==================
+    # Around q = 1:
+    # ==================
+    
+    q_vals = np.array(q_vals)
+    sigma_q = np.array(sigma_q)
+
+    # Interpolate between the data points to get a smooth curve
+    # Fit to cubic curve
+    f = interp1d(q_vals, sigma_q, kind='cubic')
+
+    # Compute derivative at q=1
+    dq = 0.001
+    slope_at_1 = (f(1 + dq) - f(1 - dq)) / (2 * dq)
+    sigma_at_1 = f(1)
+    
+    # Tangent line: y = m(x - x0) + y0
+    # y = slope_at_1 * (q - 1) + sigma_at_1
+    q_tangent = np.linspace(-2, 5, 100)
+    sigma_tangent = slope_at_1 * (q_tangent - 1) + sigma_at_1
+    print(f"Slope at q=1: {slope_at_1:.4f}")
+
+    # ==================
+    # At q = 3:
+    # ==================
+    # Find the index of the value in q_range closest to 3
+    idx_closest_to_3 = np.abs(q_vals - 3).argmin()
+    sigma_at_3 = sigma_q[idx_closest_to_3]
+    
+    print(f"Sigma at q=3: {sigma_at_3:.4f}")
+    
+    return {
+        "slope_at_1": slope_at_1,
+        "sigma_at_1": sigma_at_1,
+        "q_tangent": q_tangent,
+        "sigma_tangent": sigma_tangent,
+        "slope_inf": slope_inf,
+        "intercept_inf": intercept_inf,
+        "sigma_at_3": sigma_at_3
+    }

@@ -61,7 +61,6 @@ def run_walker(
 
         # Baseline sticking rule: stick when you are on a cluster site
         if (x, y) in cluster:
-            # return (x, y), path
             return (x, y), path
 
         # Otherwise keep walking

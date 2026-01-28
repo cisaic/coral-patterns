@@ -2,7 +2,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import List, Tuple, Set, Dict, Any
-from scipy.interpolate import interp1d
+from .multifractality import multifractality_fit
 
 from .helpers import estimate_fractal_dimension
 
@@ -90,6 +90,7 @@ def plot_mass_over_time(
         plt.savefig(f"plots/mass_over_time_mass-{cfg['target_mass']}_gm-{cfg['growth_mode']}_f-{cfg['friendliness']}_seed-{cfg['rng_seed']}.png")
         plt.close()
 
+
 def plot_multifractality(
     q_range: List[float],
     sigma_q: List[float],
@@ -100,54 +101,34 @@ def plot_multifractality(
 ) -> None:
     """Plot multifractality."""
 
-    # Interpolate sigma_q to a finer grid
-    f = interp1d(q_range, sigma_q, kind='cubic', fill_value='extrapolate')
-    
-    # Measure slope as q -> infinity
-    q_inf = np.linspace(np.max(q_range) - 10, np.max(q_range), 10)
-    sigma_q_inf = f(q_inf)  # Interpolate values
-    slope_inf, intercept_inf = np.polyfit(q_inf, sigma_q_inf, deg=1)
-
-    print(f"Slope at high q: {slope_inf:.4f}")
+    multifractality_data = multifractality_fit(q_range, sigma_q)
+    slope_at_1 = multifractality_data["slope_at_1"]
+    sigma_at_1 = multifractality_data["sigma_at_1"]
+    q_tangent = multifractality_data["q_tangent"]
+    sigma_tangent = multifractality_data["sigma_tangent"]
+    slope_inf = multifractality_data["slope_inf"]
+    intercept_inf = multifractality_data["intercept_inf"]
+    sigma_at_3 = multifractality_data["sigma_at_3"]
 
     plt.figure(figsize=(8, 6))
 
-    q_range = np.array(q_range)
-    sigma_q = np.array(sigma_q)
-    
-    # Fit the entire curve to get derivative
-    f = interp1d(q_range, sigma_q, kind='cubic', fill_value='extrapolate')
-    
-    # Get the slope at q=1 using numerical derivative
-    dq = 0.001
-    slope_at_1 = (f(1 + dq) - f(1 - dq)) / (2 * dq)
-    sigma_at_1 = f(1)
-    
-    # Tangent line: y = m(x - x0) + y0
-    # y = slope_at_1 * (q - 1) + sigma_at_1
-    q_tangent = np.linspace(-2, 5, 100)
-    sigma_tangent = slope_at_1 * (q_tangent - 1) + sigma_at_1
-    
-    print(f"Slope at q=1: {slope_at_1:.4f}")
-
     # plot data
     plt.plot(q_range, sigma_q, 'o', label='Data', color='darkgrey', markersize=2)
-    
-    # Plot tangent line
-    plt.plot(q_tangent, sigma_tangent, 'r-', linewidth=2, color='magenta',
-             label=f'Tangent at q=1: σ(q) = {slope_at_1:.3f}(q-1) + {sigma_at_1:.3f}')
-    # plot slope as q -> infinity
-    plt.plot(q_inf, slope_inf * q_inf + intercept_inf, 'r-', linewidth=2, color='teal', label=f'Linear fit: σ(q) = {slope_inf:.3f}q + {intercept_inf:.3f}')
 
     # plot a single point at q=3
-    # Find the index of the value in q_range closest to 3
-    idx_closest_to_3 = np.abs(np.array(q_range) - 3).argmin()
-    plt.plot(q_range[idx_closest_to_3], sigma_q[idx_closest_to_3], 'o', color='blue', label=f'q≈3: σ(q) = {sigma_q[idx_closest_to_3]:.3f}', markersize=4)
+    plt.plot(3, sigma_at_3, 'o', color='blue', label=f'q≈3: σ(q) = {sigma_at_3:.3f}', markersize=4)
 
     # plot a single point at q=1
-    idx_closest_to_1 = np.abs(np.array(q_range) - 1).argmin()
-    plt.plot(q_range[idx_closest_to_1], sigma_q[idx_closest_to_1], 'o', color='magenta', label=f'q≈1:', markersize=4)
+    plt.plot(1, sigma_at_1, 'o', color='magenta', label=f'q≈1:', markersize=4)
+    
+    # Plot tangent line at q=1
+    plt.plot(q_tangent, sigma_tangent, '-', linewidth=2, color='magenta', 
+         label=f'Tangent at q≈1: σ(q) = {slope_at_1:.3f}(q-1) + {sigma_at_1:.3f}')
 
+    # plot slope as q -> infinity
+    plt.plot(q_range[-10:], slope_inf * q_range[-10:] + intercept_inf, '-', linewidth=2, color='teal', 
+         label=f'Linear fit: σ(q) = {slope_inf:.3f}q + {intercept_inf:.3f}')
+         
     plt.xlabel('q')
     plt.ylabel('σ(q)')
     plt.title(title)
@@ -168,7 +149,7 @@ def plot_growth_probability(
     title: str = "",
     show_fig: bool = False
 ) -> None:
-    """Plot growth probability."""
+    """Plot growth probability with an example path taken by a walker."""
 
     xs = [x for (x, _) in growth_probabilities.keys()]
     ys = [y for (_, y) in growth_probabilities.keys()]
@@ -177,8 +158,10 @@ def plot_growth_probability(
     plt.figure(figsize=(6, 6))
     scatter = plt.scatter(xs, ys, s=0.6, c=colors, cmap='cool', vmin=min(colors), vmax=max(colors))
     
+    # Plot the first point of the sample path as a red dot
     plt.plot(sample_path[0][0], sample_path[0][1], 'ro', markersize=2)
-    # Plot the rest of the path as a grey line
+    
+    # Plot the rest of the walker's path as a grey line
     if len(sample_path) > 1:
         plt.plot([x for (x, _) in sample_path], [y for (_, y) in sample_path], color='grey', alpha=0.3, linewidth=0.6)
 
