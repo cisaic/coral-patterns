@@ -1,6 +1,7 @@
 import random
 from tqdm import tqdm
 from typing import Set, Tuple, List, Any
+import pickle
 
 from .helpers import (
     radius_from_r2,
@@ -89,5 +90,9 @@ def simulate_dla(
 
             if log_every and (len(cluster) % log_every == 0):
                 print(f"[DLA] mass={len(cluster)}  R~{radius_from_r2(max_r2)}")
+
+    # save cluster, cluster_history, origin, mass_history, max_r2 to file
+    with open(f"data/dla_mass-{target_mass}_gm-{growth_mode}_f-{friendliness}_seed-{rng_seed}.pkl", "wb") as f:
+        pickle.dump((cluster, cluster_history, origin, mass_history, max_r2), f)
 
     return cluster, cluster_history, origin, mass_history, max_r2

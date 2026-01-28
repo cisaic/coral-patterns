@@ -33,7 +33,8 @@ def run_walker(
     launch_radius: float,
     kill_radius: float,
     max_steps: int,
-    rng: random.Random 
+    rng: random.Random, 
+    record_path: bool = False
 ) -> Optional[Tuple[int, int]]:
     """
     One walker, baseline rules:
@@ -50,7 +51,7 @@ def run_walker(
 
     x, y = launch_point(launch_radius, origin, rng)
 
-    path = [(x, y)]
+    path = [(x, y)] if record_path else []
 
     for _ in range(max_steps):
         # If it wanders too far, teleport it back to the launch circle
@@ -60,13 +61,15 @@ def run_walker(
 
         # Baseline sticking rule: stick when you are on a cluster site
         if (x, y) in cluster:
+            # return (x, y), path
             return (x, y), path
 
         # Otherwise keep walking
         dx, dy = random_step(rng)
         x += dx
         y += dy
-        path.append((x, y))
+        if record_path:
+            path.append((x, y))
 
     # If we hit max_steps, we give up on this walker and spawn a new one
     return None, path

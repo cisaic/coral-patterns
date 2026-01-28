@@ -4,10 +4,28 @@ from tqdm import tqdm
 import random
 import os
 from multiprocessing import Pool
+import gc
+import pickle
 
 from .config import DEFAULTS
 from .dla import run_walker
 from .helpers import radius_from_r2
+
+def run_single_walker(args):
+    """Wrapper function for multiprocessing"""
+    cluster, origin, launch_r, kill_r, max_steps, seed, record_path = args
+    
+    rng = random.Random(seed)
+    growth_site, path = run_walker(
+        cluster=cluster,
+        origin=origin,
+        launch_radius=launch_r,
+        kill_radius=kill_r,
+        max_steps=max_steps,
+        rng=rng,
+        record_path=record_path
+    )
+    return growth_site, path
 
 def compute_growth_probability_parallel(cluster: Set[Tuple[int, int]], max_r2: float, num_walkers: int):
     """Parallelized version"""
@@ -17,37 +35,53 @@ def compute_growth_probability_parallel(cluster: Set[Tuple[int, int]], max_r2: f
     kill_r = launch_r + DEFAULTS["kill_margin"]
     rng = random.Random(DEFAULTS["rng_seed"])
     
-    # Prepare arguments for each walker (with unique seeds)
-    walker_args = (
-        cluster, origin, launch_r, kill_r, DEFAULTS["max_steps_per_walker"], 
-         rng)
+    walker_args = [
+        (
+            cluster,
+            origin,
+            launch_r,
+            kill_r,
+            DEFAULTS["max_steps_per_walker"],
+            DEFAULTS["rng_seed"] + i,
+            True if i == 0 else False # record_path
+        )
+        for i in range(num_walkers)
+    ]
     
-    # Use all available cores
     num_cores = os.cpu_count() - 1
     print(f"Using {num_cores} cores")
     
     growth_counts = {site: 0 for site in cluster}
-    paths = []
     
     # Run walkers in parallel
     with Pool(num_cores) as pool:
         results = list(tqdm(
-            pool.imap_unordered(run_walker, walker_args),
+            pool.imap_unordered(run_single_walker, walker_args, chunksize=20),
             total=num_walkers,
             desc="Running walkers"
         ))
     
-    # Aggregate results
-    for growth_site, path in results:
+    successful_walkers = 0
+    sample_path = None
+    # Aggregate and flush memory periodically
+    for i, (growth_site, path) in enumerate(results):
+        if len(path) > 0:
+            sample_path = path
         if growth_site is not None:
             growth_counts[growth_site] += 1
-            paths.append(path)
+            # paths.append(path)
+            successful_walkers += 1
+        
+        # Every 1000 walkers, garbage collect
+        if (i + 1) % 1000 == 0:
+            gc.collect()
     
-    growth_probabilities = {site: count / len(paths) for site, count in growth_counts.items()}
+    growth_probabilities = {site: count / successful_walkers for site, count in growth_counts.items()}
     print(f"5 values with highest growth probabilities: {sorted(growth_probabilities.items(), key=lambda x: x[1], reverse=True)[:5]}")
-    print(f"Number of successful walkers: {len(paths)}")
+    print(f"Number of successful walkers: {successful_walkers} / {num_walkers}")
     
-    return growth_probabilities, paths
+    # return growth_probabilities, paths
+    return growth_probabilities, sample_path
 
 
 def compute_growth_probability(cluster: Set[Tuple[int, int]], max_r2: float, num_walkers: int) -> float:
@@ -112,7 +146,8 @@ def compute_multifractality(
     print(f"Computing multifractality for cluster with {len(cluster)} sites")
     print(f"Launching {num_walkers} random walkers...")
 
-    growth_probabilities, paths = compute_growth_probability_parallel(cluster, max_r2, num_walkers)
+    # growth_probabilities, paths = compute_growth_probability_parallel(cluster, max_r2, num_walkers)
+    growth_probabilities, sample_path = compute_growth_probability_parallel(cluster, max_r2, num_walkers)
     print(f"first 10 growth_probabilities: {list(growth_probabilities.values())[:10]}")
     print("--------------------------------")
     print(f"last 10 growth_probabilities: {list(growth_probabilities.values())[-10:]}")
@@ -132,4 +167,8 @@ def compute_multifractality(
 
         print(f"q: {q}, sigma: {sigma}, sum_p_q: {sum_p_q}")
 
-    return q_vals, sigma_q, growth_probabilities, paths
+    # save to file
+    with open(f"data/multifractality_mass-{DEFAULTS['target_mass']}_gm-{DEFAULTS['growth_mode']}_f-{DEFAULTS['friendliness']}_seed-{DEFAULTS['rng_seed']}_numwalkers-{num_walkers}.pkl", "wb") as f:
+        pickle.dump((q_vals, sigma_q, growth_probabilities, sample_path), f)
+
+    return q_vals, sigma_q, growth_probabilities, sample_path
