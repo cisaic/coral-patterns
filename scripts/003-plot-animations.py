@@ -3,6 +3,13 @@ import os
 from PIL import Image
 import numpy as np
 
+"""
+Plots animations that show:
+- How the baseline DLA model works
+- How the friendliness parameter modifies the attachment probability in the DLA
+- How the growth mode parameter modifies the attachment probability in the DLA
+"""
+
 img_folders = [
     "dla-animation",
     "friendliness-animation",
@@ -27,4 +34,4 @@ for img_folder in img_folders:
     
     # Save as GIF
     imageio.mimsave(f'../images/{img_folder}.gif', images, fps=2, loop=0)
-    print(f"✓ Saved: ../images/{img_folder}.gif ({len(images)} frames)")
+    print(f"Saved: ../images/{img_folder}.gif ({len(images)} frames)")

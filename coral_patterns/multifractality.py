@@ -11,7 +11,6 @@ from scipy.interpolate import interp1d
 from .config import DEFAULTS
 from .dla import run_walker
 from .helpers import radius_from_r2, estimate_fractal_dimension
-from .config import PLOT_DEFAULTS, MULTIFRACTALITY_DEFAULTS
 
 def run_single_walker(args):
     """Wrapper function for multiprocessing"""
@@ -30,13 +29,25 @@ def run_single_walker(args):
     return growth_site, path
 
 def compute_growth_probability_parallel(cluster: Set[Tuple[int, int]], max_r2: float, num_walkers: int):
-    """Parallelized version"""
-    origin = (0, 0)
+    """Calculate the growth probability of each site in the cluster.
+    Given a completed cluster, launch num_walkers random walkers and measure probability of each site being selected
+    Parallelized version.
+    Args:
+        - Cluster: Set of occupied sites
+        - max_r2: Maximum squared distance from the origin to the farthest occupied site
+        - num_walkers: Number of random walkers to launch
+    Returns:
+        - growth_probabilities: Dictionary of growth probabilities for each site
+        - sample_path: Path of the first walker for sample plotting
+    """
+    origin = (0, 0) 
     R = radius_from_r2(max_r2)
     launch_r = R + DEFAULTS["launch_margin"]
     kill_r = launch_r + DEFAULTS["kill_margin"]
     rng = random.Random(DEFAULTS["rng_seed"])
     
+    # Have to use different seeds for the random number generator 
+    # because it will output same values for each walker when processing on different cores
     walker_args = [
         (
             cluster,
@@ -50,6 +61,7 @@ def compute_growth_probability_parallel(cluster: Set[Tuple[int, int]], max_r2: f
         for i in range(num_walkers)
     ]
     
+    # please leave one cpu for my poor laptop ):
     num_cores = os.cpu_count() - 1
     print(f"Using {num_cores} cores")
     
@@ -65,13 +77,15 @@ def compute_growth_probability_parallel(cluster: Set[Tuple[int, int]], max_r2: f
     
     successful_walkers = 0
     sample_path = None
-    # Aggregate and flush memory periodically
+
+    # Aggregate results and flush memory every 1000 walkers
     for i, (growth_site, path) in enumerate(results):
         if len(path) > 0:
+            # Store first path for sample plotting
             sample_path = path
+
         if growth_site is not None:
             growth_counts[growth_site] += 1
-            # paths.append(path)
             successful_walkers += 1
         
         # Every 1000 walkers, garbage collect
@@ -86,11 +100,17 @@ def compute_growth_probability_parallel(cluster: Set[Tuple[int, int]], max_r2: f
     return growth_probabilities, sample_path
 
 
-def compute_growth_probability(cluster: Set[Tuple[int, int]], max_r2: float, num_walkers: int) -> float:
+def compute_growth_probability(cluster: Set[Tuple[int, int]], max_r2: float, num_walkers: int) -> Tuple[Dict[Tuple[int, int], float], List[Tuple[int, int]]]:
     """
     Calculate the growth probability of each site in the cluster.
     Given a completed cluster, launch num_walkers random walkers and measure probability of each site being selected
-
+    Args:
+        - Cluster: Set of occupied sites
+        - max_r2: Maximum squared distance from the origin to the farthest occupied site
+        - num_walkers: Number of random walkers to launch
+    Returns:
+        - growth_probabilities: Dictionary of growth probabilities for each site
+        - sample_path: Path of the first walker for sample plotting
     """
     origin = (0, 0)
     R = radius_from_r2(max_r2)
@@ -104,6 +124,10 @@ def compute_growth_probability(cluster: Set[Tuple[int, int]], max_r2: float, num
     paths = []
 
     for i in tqdm(range(num_walkers)):
+        if i == 0:
+            record_path = True
+        else:
+            record_path = False
     
         growth_site, path = run_walker(
                     cluster=cluster,
@@ -112,18 +136,18 @@ def compute_growth_probability(cluster: Set[Tuple[int, int]], max_r2: float, num
                     kill_radius=kill_r,
                     max_steps=DEFAULTS["max_steps_per_walker"],
                     rng=rng,
+                    record_path=record_path
                 )
         if growth_site is not None:
             # print(f"Walker {i} grew on site {growth_site}")
             growth_counts[growth_site] += 1
-            paths.append(path)
 
-    growth_probabilities = {site: count / len(paths) for site, count in growth_counts.items()}
+    growth_probabilities = {site: count / num_walkers for site, count in growth_counts.items()}
     # 5 values with highest growth probabilities
     print(f"5 values with highest growth probabilities: {sorted(growth_probabilities.items(), key=lambda x: x[1], reverse=True)[:5]}")
-    print(f"Number of successful walkers: {len(paths)}")
+    print(f"Number of successful walkers: {len(growth_counts)} / {num_walkers}")
 
-    return growth_probabilities, paths
+    return growth_probabilities, path
 
 
 def compute_multifractality(
@@ -144,18 +168,37 @@ def compute_multifractality(
         q_steps is the number of q values to compute
     For each q: (From DLA Scaling Laws paper Halsey, 2000)
         Sum(p_i^q) = n^(-sigma(q))
-        sigma(q) = -log(Sum(p_i^q)) / log(n)
+        Therefore, sigma(q) = -log(Sum(p_i^q)) / log(n)
+
+    Args:
+        - Cluster: Set of occupied sites
+        - max_r2: Maximum squared distance from the origin to the farthest occupied site
+        - num_walkers: Number of random walkers to launch
+        - q_range: Range of q values to compute
+        - q_steps: Number of q values to compute
+        - cfg: Configuration dictionary
+        - origin: Origin of the cluster
+    Returns:
+        - multifractality_data: Dictionary containing the multifractality data
+            - q_vals: List of evenly spaced values for q computed given a range 
+            - sigma_q: List of sigma(q) values
+            - growth_probabilities: Dictionary of growth probabilities for each site
+            - sample_path: Path of the first walker for sample plotting
+            - slope_at_1: Slope of tangent line at sigma(q) for q=1
+            - sigma_at_1: Sigma x,y value at q=1
+            - q_tangent: range of q values for plotting the tangent line at q=1 (x-axis)
+            - sigma_tangent: sigma function values for plotting the tangent line at q=1 (y-axis)
+            - slope_inf: Slope at q -> infinity
+            - intercept_inf: y-intercept at q -> infinity
+            - sigma_at_3: Sigma x,y value at q=3
+            - fractal_dimension: Fractal dimension of the cluster
     """
 
     print(f"Computing multifractality for cluster with {len(cluster)} sites")
     print(f"Launching {num_walkers} random walkers...")
 
-    # growth_probabilities, paths = compute_growth_probability_parallel(cluster, max_r2, num_walkers)
+    # Compute growth probabilities for each site in the cluster
     growth_probabilities, sample_path = compute_growth_probability_parallel(cluster, max_r2, num_walkers)
-    print(f"first 10 growth_probabilities: {list(growth_probabilities.values())[:10]}")
-    print("--------------------------------")
-    print(f"last 10 growth_probabilities: {list(growth_probabilities.values())[-10:]}")
-    print("--------------------------------")
 
     num_sites = len(cluster)
     p_vals = np.array(list(growth_probabilities.values()))
@@ -165,6 +208,8 @@ def compute_multifractality(
 
     sigma_q = []
 
+    # Compute sum(p_i^q) for each q value
+    # Compute sigma(q) = -log(Sum(p_i^q)) / log(n)
     for q in q_vals:
         sum_p_q = np.sum(p_vals ** q)
         sigma = -np.log(sum_p_q) / np.log(num_sites) if sum_p_q > 0 else float("nan")
@@ -209,26 +254,24 @@ def multifractality_fit(
     q_vals: List[float],
     sigma_q: List[float],
 ) -> Tuple[float, float]:
-    """Behaviour of the multifractality curve as:
-     - as q -> infinity (slope should be linear and equal to D^2 - D)
-     - Around q = 1, slope should be 1/D
-     - At q = 3, sigma(q) should be equal to 1
+    """
+    Record the behaviour of the multifractality curve sigma(q) as:
+        - q -> infinity (slope should be linear and equal to D^2 - D)
+        - Around q = 1, slope should be 1/D
+        - At q = 3, sigma(q) should be equal to 1
      Where:
      - D is the fractal dimension of the cluster
     """
-    
     # ==================
     # Measure slope as q -> infinity:
     # ==================
     # Fit end range of q vlaues to a linear function
     slope_inf, intercept_inf = np.polyfit(q_vals[-10:], sigma_q[-10:], deg=1)
-
     print(f"Slope at high q: {slope_inf:.4f}")
     
     # ==================
     # Around q = 1:
     # ==================
-    
     q_vals = np.array(q_vals)
     sigma_q = np.array(sigma_q)
 

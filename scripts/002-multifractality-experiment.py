@@ -73,10 +73,13 @@ def run_multifractality_experiment(cfg, runs=10):
                 print("=================================================")
                 print(f"Running experiment for friendliness: {friendliness} - growth mode: {growth_mode} - seed: {seed}")
                 print("=================================================")
+                
                 cfg["friendliness"] = friendliness
                 cfg["growth_mode"] = growth_mode
                 cfg["rng_seed"] = seed
 
+
+                # Avoid re-running the DLA simulation if it already exists
                 if not os.path.exists(f"data/dla_mass-{cfg['target_mass']}_gm-{cfg['growth_mode']}_f-{cfg['friendliness']}_seed-{cfg['rng_seed']}.pkl"):
                     cluster, cluster_history, origin, mass_history, max_r2 = simulate_dla(**cfg)
                 else:
@@ -109,12 +112,13 @@ def run_multifractality_experiment(cfg, runs=10):
                     plot_multifractality(q_vals, sigma_q, title=f"Multifractality - Friendliness: {friendliness} - Growth Mode: {growth_mode} - Mass: {len(cluster)}", cfg=cfg, num_walkers=MULTIFRACTALITY_DEFAULTS["num_walkers"])
                     plot_growth_probability(growth_probabilities, cfg=cfg, sample_path=sample_path, num_walkers=MULTIFRACTALITY_DEFAULTS["num_walkers"], title=f"Growth Probability - Friendliness: {friendliness} - Growth Mode: {growth_mode} - Mass: {len(cluster)} - Num Walkers: {MULTIFRACTALITY_DEFAULTS['num_walkers']}")
 
+    # Average the values over the runs
+    print(f"Averaging values over {runs} runs...")
     slope_at_1_values /= runs
     slope_inf_values /= runs
     sigma_at_3_values /= runs
     fractal_dimension_values /= runs
 
-    print(f"Normalizing... \n")
     print(f"slope_at_1_values:\n {slope_at_1_values}\n")
     print(f"slope_inf_values:\n {slope_inf_values}\n")
     print(f"sigma_at_3_values:\n {sigma_at_3_values}\n")
@@ -149,8 +153,7 @@ def single_main():
 def main():
     cfg = DEFAULTS.copy()
 
-    # run_single_multifractality_experiment(cluster, cluster_history, max_r2, cfg)
-    results = run_multifractality_experiment(cfg, runs=5)
+    results = run_multifractality_experiment(cfg, runs=MULTIFRACTALITY_DEFAULTS["num_runs"])
 
     slope_at_1_values = results["slope_at_1_values"]
     inv_d_values = results["inv_d_values"]
@@ -163,17 +166,18 @@ def main():
     fractal_dimension_values = results["fractal_dimension_values"]
 
     # plot slope_at_1_values vs inv_d_vals
-    plot_multi_heatmap(slope_at_1_values, inv_d_values, "σ(q) Slope at q=1 vs Inverse Fractal Dimension", "Growth Mode (horizontal → vertical)", "Friendliness (branchy → friendly)")
+    plot_multi_heatmap(slope_at_1_values, inv_d_values, "σ(q) Slope at q=1 vs Inverse Fractal Dimension", "Growth Mode (horizontal → vertical)", f"Friendliness (branchy → friendly), Averaged over {MULTIFRACTALITY_DEFAULTS['num_runs']} runs", file_name=f"multi_heatmap_slope_at_1_vs_inv_d_mass-{cfg['target_mass']}_runs-{MULTIFRACTALITY_DEFAULTS['num_runs']}.png")
 
     # plot slope_inf_values vs slope_inf_targets
-    plot_multi_heatmap(slope_inf_values, slope_inf_targets, "σ(q) Slope → ∞ vs Target Slope D^2 - D", "Growth Mode (horizontal → vertical)", "Friendliness (branchy → friendly)")
+    plot_multi_heatmap(slope_inf_values, slope_inf_targets, "σ(q) Slope → ∞ vs Target Slope D^2 - D", "Growth Mode (horizontal → vertical)", f"Friendliness (branchy → friendly), Averaged over {MULTIFRACTALITY_DEFAULTS['num_runs']} runs", file_name=f"multi_heatmap_slope_inf_vs_slope_inf_targets_mass-{cfg['target_mass']}_runs-{MULTIFRACTALITY_DEFAULTS['num_runs']}.png")
 
     # plot sigma_at_3_values
-    plot_heatmap(sigma_at_3_values, "σ(q) at q=3", "Growth Mode (horizontal → vertical)", "Friendliness (branchy → friendly)")
+    plot_heatmap(sigma_at_3_values, "σ(q) at q=3", "Growth Mode (horizontal → vertical)", "Friendliness (branchy → friendly)", file_name=f"heatmap_sigma_at_3_mass-{cfg['target_mass']}_runs-{MULTIFRACTALITY_DEFAULTS['num_runs']}.png")
 
     # plot fractal_dimension_values
-    plot_heatmap(fractal_dimension_values, "Fractal Dimension", "Growth Mode (horizontal → vertical)", "Friendliness (branchy → friendly)")
+    plot_heatmap(fractal_dimension_values, "Fractal Dimension", "Growth Mode (horizontal → vertical)", "Friendliness (branchy → friendly)", file_name=f"heatmap_fractal_dimension_mass-{cfg['target_mass']}_runs-{MULTIFRACTALITY_DEFAULTS['num_runs']}.png")
 
 
 if __name__ == "__main__":
+    # single_main()
     main()

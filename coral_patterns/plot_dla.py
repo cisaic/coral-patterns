@@ -176,7 +176,7 @@ def plot_growth_probability(
         plt.savefig(f"plots/growth_probabilities_mass-{cfg['target_mass']}_gm-{cfg['growth_mode']}_f-{cfg['friendliness']}_seed-{cfg['rng_seed']}_numwalkers-{num_walkers}.png")
         plt.close()
 
-def plot_heatmap(data, title, xlabel, ylabel):
+def plot_heatmap(data, title, xlabel, ylabel, file_name):
     """Plot a heatmap of the data."""
 
     friendliness_values = [0, 0.25, 0.5, 0.75, 1]
@@ -206,11 +206,10 @@ def plot_heatmap(data, title, xlabel, ylabel):
     cbar = plt.colorbar(im, ax=ax)
     cbar.set_label(title)
     fig.tight_layout()
-    # plt.savefig(f"plots/heatmap_{title}.png")
-    # plt.close()
-    plt.show()
+    plt.savefig(f"plots/{file_name}.png")
+    plt.close()
 
-def plot_multi_heatmap(target_data, result_data, title, xlabel, ylabel):
+def plot_multi_heatmap(target_data, result_data, title, xlabel, ylabel, file_name):
     """Plot split heatmap with two data sources (each square is split into two triangles).
     Bottom-left triangle = target, Top-right triangle = result"""
 
@@ -286,4 +285,5 @@ def plot_multi_heatmap(target_data, result_data, title, xlabel, ylabel):
     ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=2, frameon=True)
     
     plt.tight_layout()
-    plt.show()
+    plt.savefig(f"plots/multi_heatmap_{file_name}.png")
+    plt.close()

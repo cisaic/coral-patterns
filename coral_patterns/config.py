@@ -24,6 +24,7 @@ PLOT_DEFAULTS = {
 
 MULTIFRACTALITY_DEFAULTS = {
     "num_walkers": 100000,
+    "num_runs": 5,
 }
 
 
