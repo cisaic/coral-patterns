@@ -26,7 +26,7 @@ def simulate_dla(
     sharpness: float,
 ) -> Tuple[Set[Tuple[int, int]], List[Tuple[int, int]], Tuple[int, int], List[int], int]:
     """
-    Baseline isotropic DLA on a 2D lattice.
+    Isotropic DLA on a 2D lattice.
 
     Returns:
     - cluster (set of occupied sites)
@@ -35,14 +35,13 @@ def simulate_dla(
     - max_r2 (squared radius of the farthest occupied site)
     """
     rng = random.Random(rng_seed)
-    origin = (0, 0)
+    origin = (0, 0) # TODO: Make origin configurable
 
     neighborhood = generate_neighborhood(neighborhood_radius)
 
     cluster = {origin}
     cluster_history = [origin]
     attachment_counts = {origin: 0}
-    # frontier = build_frontier(cluster)
 
     mass_history = [1]
     max_r2 = 0  # seed is at origin -> distance^2 = 0
@@ -79,7 +78,6 @@ def simulate_dla(
             cluster.add(new_site)
             cluster_history.append(new_site)
             pbar.update(1)
-            # print("")
             
             # Update max radius incrementally so we don't need to do a whole full scan
             r2 = sqdist_point(new_site, origin)  
