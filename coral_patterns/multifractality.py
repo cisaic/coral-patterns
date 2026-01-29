@@ -11,6 +11,7 @@ from scipy.interpolate import interp1d
 from .config import DEFAULTS
 from .dla import run_walker
 from .helpers import radius_from_r2, estimate_fractal_dimension
+from .config import PLOT_DEFAULTS, MULTIFRACTALITY_DEFAULTS
 
 def run_single_walker(args):
     """Wrapper function for multiprocessing"""
@@ -131,6 +132,7 @@ def compute_multifractality(
     num_walkers: int, 
     q_range: Tuple[float, float], 
     q_steps: int,
+    cfg: Dict[str, Any],
     origin: Tuple[int, int] = (0, 0),
 ) -> Tuple[List[float], List[float], Dict[Tuple[int, int], float], List[Tuple[int, int]], float, float, List[float], List[float], float, float, float]:
     """
@@ -158,8 +160,8 @@ def compute_multifractality(
     num_sites = len(cluster)
     p_vals = np.array(list(growth_probabilities.values()))
 
+    # generate q_steps number of values between q_range[0] and q_range[1]
     q_vals = np.linspace(q_range[0], q_range[1], q_steps)
-    print(f"length of q_range: {len(q_range)}")
 
     sigma_q = []
 
@@ -182,11 +184,7 @@ def compute_multifractality(
     fractal_dimension = estimate_fractal_dimension(cluster, origin, max_r2=max_r2)
     print(f"Fractal dimension: {fractal_dimension}")
 
-    # save to file
-    with open(f"data/multifractality_mass-{DEFAULTS['target_mass']}_gm-{DEFAULTS['growth_mode']}_f-{DEFAULTS['friendliness']}_seed-{DEFAULTS['rng_seed']}_numwalkers-{num_walkers}.pkl", "wb") as f:
-        pickle.dump((q_vals, sigma_q, growth_probabilities, sample_path, slope_at_1, sigma_at_1, q_tangent, sigma_tangent, slope_inf, intercept_inf, sigma_at_3, fractal_dimension), f)
-
-    return {
+    return_data = {
         "q_vals": q_vals,
         "sigma_q": sigma_q,
         "growth_probabilities": growth_probabilities,
@@ -200,6 +198,12 @@ def compute_multifractality(
         "sigma_at_3": sigma_at_3,
         "fractal_dimension": fractal_dimension,
     }
+
+    # save to file
+    with open(f"data/multifractality_mass-{cfg['target_mass']}_gm-{cfg['growth_mode']}_f-{cfg['friendliness']}_seed-{cfg['rng_seed']}_numwalkers-{num_walkers}.pkl", "wb") as f:
+        pickle.dump(return_data, f)
+
+    return return_data
 
 def multifractality_fit(
     q_vals: List[float],
@@ -217,12 +221,9 @@ def multifractality_fit(
     # Measure slope as q -> infinity:
     # ==================
     # Fit end range of q vlaues to a linear function
-    print(f"length of q_vals: {len(q_vals)}")
-    print(f"length of sigma_q: {len(sigma_q)}")
     slope_inf, intercept_inf = np.polyfit(q_vals[-10:], sigma_q[-10:], deg=1)
 
     print(f"Slope at high q: {slope_inf:.4f}")
-    print(f"Intercept at high q: {intercept_inf:.4f}")
     
     # ==================
     # Around q = 1:

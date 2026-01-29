@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from typing import List, Tuple, Set, Dict, Any
 from .multifractality import multifractality_fit
+from matplotlib.patches import Polygon, Patch
 
 from .helpers import estimate_fractal_dimension
 
@@ -128,7 +129,7 @@ def plot_multifractality(
     # plot slope as q -> infinity
     plt.plot(q_range[-10:], slope_inf * q_range[-10:] + intercept_inf, '-', linewidth=2, color='teal', 
          label=f'Linear fit: σ(q) = {slope_inf:.3f}q + {intercept_inf:.3f}')
-         
+
     plt.xlabel('q')
     plt.ylabel('σ(q)')
     plt.title(title)
@@ -174,3 +175,115 @@ def plot_growth_probability(
     else:
         plt.savefig(f"plots/growth_probabilities_mass-{cfg['target_mass']}_gm-{cfg['growth_mode']}_f-{cfg['friendliness']}_seed-{cfg['rng_seed']}_numwalkers-{num_walkers}.png")
         plt.close()
+
+def plot_heatmap(data, title, xlabel, ylabel):
+    """Plot a heatmap of the data."""
+
+    friendliness_values = [0, 0.25, 0.5, 0.75, 1]
+    growth_mode_values = [-1, -0.5, 0, 0.5, 1]
+
+    fig, ax = plt.subplots()
+
+    # set vmin and vmax (round to nearest integer ciel / floor)
+    vmin = 1
+    vmax = 2
+    im = ax.imshow(data, vmin=vmin, vmax=vmax)
+
+
+    # Show all ticks and label them with the respective list entries
+    ax.set_xticks(range(len(growth_mode_values)), labels=growth_mode_values)
+    ax.set_yticks(range(len(friendliness_values)), labels=friendliness_values)
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(friendliness_values)):
+        for j in range(len(growth_mode_values)):
+            text = ax.text(j, i, f"{data[i, j]:.2f}",
+                        ha="center", va="center", color="w")
+
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    cbar = plt.colorbar(im, ax=ax)
+    cbar.set_label(title)
+    fig.tight_layout()
+    # plt.savefig(f"plots/heatmap_{title}.png")
+    # plt.close()
+    plt.show()
+
+def plot_multi_heatmap(target_data, result_data, title, xlabel, ylabel):
+    """Plot split heatmap with two data sources (each square is split into two triangles).
+    Bottom-left triangle = target, Top-right triangle = result"""
+
+    friendliness_values = [0, 0.25, 0.5, 0.75, 1]
+    growth_mode_values = [-1, -0.5, 0, 0.5, 1]
+
+    fig, ax = plt.subplots(figsize=(9, 7))
+    
+    rows, cols = target_data.shape
+    cmap = plt.get_cmap('viridis')
+    
+    for i in range(rows):
+        for j in range(cols):
+            # Result (top-right triangle)
+            result_val = result_data[i, j]
+            result_color = cmap(result_val)
+            top_right_tri = Polygon([ # define polygon vertices
+                (j+1, i),           # top-left
+                (j, i),             # bottom-left
+                (j, i+1)          # top-right
+            ], facecolor=result_color, edgecolor='black', linewidth=1.5)
+            ax.add_patch(top_right_tri)
+            
+            # Target label (top-right)
+            ax.text(j+0.25, i+0.25, f'{result_val:.2f}', 
+                   ha='center', va='center', color='white', fontsize=8, weight='bold')
+            
+            # Target (bottom-left triangle)
+            target_val = target_data[i, j]
+            target_color = cmap(target_val)
+            bottom_left_tri = Polygon([ # define polygon vertices
+                (j+1, i),         # top-left
+                (j+1, i+1),             # top-right
+                (j, i+1)            # bottom-right
+            ], facecolor=target_color, edgecolor='black', linewidth=0.5)
+            ax.add_patch(bottom_left_tri)
+            
+            # Result label (bottom-left)
+            ax.text(j+0.75, i+0.75, f'{target_val:.2f}', 
+                   ha='center', va='center', color='white', fontsize=8, weight='bold')
+    
+    # Divide squares with thick black lines
+    for i in range(rows + 1):
+        ax.plot([0, cols], [i, i], 'k-', linewidth=2)
+    for j in range(cols + 1):
+        ax.plot([j, j], [0, rows], 'k-', linewidth=2)
+    
+    ax.set_xlim(0, cols)
+    ax.set_ylim(0, rows)
+    ax.set_aspect('equal')
+    
+    # Set ticks and labels
+    ax.set_xticks(np.arange(cols) + 0.5)
+    ax.set_yticks(np.arange(rows) + 0.5)
+    ax.set_xticklabels(growth_mode_values)
+    ax.set_yticklabels(friendliness_values)
+    
+    ax.set_xlabel(xlabel, fontsize=10)
+    ax.set_ylabel(ylabel, fontsize=10)
+    
+    # Add legend
+    sm = plt.cm.ScalarMappable(cmap=cmap)
+    sm.set_clim(0, 1)
+    cbar = plt.colorbar(sm, ax=ax)
+    cbar.set_label('Value', fontsize=10)
+    
+    # Titles
+    fig.suptitle(title, fontsize=14, fontweight='bold')
+    
+    # Add legend at bottom
+    legend_elements = [Patch(facecolor=cmap(0), edgecolor='black', label='Target (Bottom-Left)'),
+                       Patch(facecolor=cmap(1), edgecolor='black', label='Experiment Result (Top-Right)')]
+    ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=2, frameon=True)
+    
+    plt.tight_layout()
+    plt.show()

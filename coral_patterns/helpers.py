@@ -121,7 +121,7 @@ def normalize_probabilities(probabilities: np.ndarray) -> np.ndarray:
     """
     Normalize probabilities to sum to 1
     """
-    total = probabilities.sum()
+    total = np.sum(probabilities)
     if total == 0.0:
         return probabilities
 
