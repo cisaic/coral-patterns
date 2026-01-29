@@ -23,6 +23,7 @@ setup(name='coral_patterns',
             "plotly",
             "networkx",
             "powerlaw",
+            "imageio",
             "pandas"
       ],
       )
