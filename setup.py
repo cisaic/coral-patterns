@@ -22,6 +22,7 @@ setup(name='coral_patterns',
             "seaborn",
             "plotly",
             "networkx",
-            "powerlaw"
+            "powerlaw",
+            "imageio"
       ],
       )
