@@ -111,25 +111,46 @@ For the cauliflower-like setting, the mass–radius curve is almost a straight l
 For the column-like setting, we see the same power-law signature, but with a much smaller slope: the ensemble fit gives D≈1.056D \approx 1.056D≈1.056. Again, the representative run follows the mean trend and remains within the uncertainty band, which tells us the mean DDD is consistent and reproducible across different random seeds. The lower DDD matches what we see visually: a thinner, more “line-like” growth compared to the cauliflower case.
 
 ## Applying the agent-based network coral parameters (Llabrés et. al 2024) to our DLA model
-2024 Llabres paper built a different model to simulate coral growth using networks, where the polyps are vertices and they’re connected with edges
-5 parameters: Horizontal/vertical growth, Thickness, Branch angle
+2024 Llabres paper built a different model to simulate coral growth using networks, where the polyps are vertices and they’re connected with edges.
+5 parameters: Horizontal/vertical growth, thickness, branch angle & distance between branches.
 
 Our implementation:
-- 2 parameters: Growth / friendliness
-- Address most of the effects governed by original 5 parameters
+- We translate the 5 parameters from Llabrés et al. 2024 for the DLA.
+- Introduce 2 parameters: Growth direction (vertical/horizontal) and friendliness (new polyps grow towards or away from existing neighbours).
+- These 2 parameters address most of the effects governed by original 5 parameters (growth direction, branch thickness, branch angle,)
 - They work by modifying probability of where a new polyp grows from a given site
 - Modifications: No downward growth, seed grows from the "ground"
 
+![Friendliness parameter](images/friendliness-animation.gif)
+![Growth mode parameter](images/growth-mode-animation.gif)
+
 ## Multifractality
-Paper from year 2000 describes theoretical properties of DLA that we show our model exhibits, despite constraints
-Multifractality means distribution of fractal dimension is not the same - tips exhibit different fractal patterns than “smoother” fjords where prob of growing is smaller
-Related to growth prob
-Can empirically measure this by launching a million random walkers at coral and seeing where they stick - for our experiments were limited by compute
-Sum probabilities and raise to exponent
-Equal to mass of coral raised to sigma function 
-Multifractality demonstrated by sigma not being constant - our experimental results reflected this
+Halsey et al. 2000 describe theoretical properties of DLA that we show our model exhibits, despite the constraints we added to the model.
+Multifractality means distribution of fractal dimension is not the same - tips exhibit different fractal patterns than “smoother” fjords where probability of growing is smaller.
+Multifractality is related to growth probability.
+Can empirically measure growth probability by launching a lot of random walkers at coral and seeing where they stick.
+For our experiments were limited by compute (launched 100,000 random walkers) so the empirical probabilities may not be quite what the actual probabilities are, limiting our analysis.
+Sum of probabilities raised to an exponent q is equal to the mass of coral raised to a sigma function.
+Multifractality demonstrated by sigma not being constant - our experimental results reflected this (sigma plot below is not linear).
 3 important relations that we show: Behaviour around q = 1 (straight sum), value at q=3, and behavior as q approaches infinity
 Experimental results are relatively close to theoretical, with better performance on models that exhibit higher overall fractal dimensions
+![Example sigma plot](plots/multifractality_mass-1000_gm-0_f-0.5_seed-0_numwalkers-100000.png)
+
+### Observations:
+
+#### slope at q = 1
+![Slope of tangent at q=1 vs 1/D](plots/slopeq1_invD_avg5seeds.png)
+Experimental values are more aligned with expected values for structures with higher fractal dimension D (more horizontal growth mode), but overall the 
+values are not too far apart. Could have benefited from some significance analysis to see what results are actually "close enough" to be considered in agreement with the expected values.
+
+#### value at q = 3
+![Value at q=3](plots/q3_vs_expected.png)
+Expected value is 1. All values close to 1 with a slight bias. Good to see that the heatmap is basically "uniform colour" i.e. despite the structure, the value at q is relatively consistent.
+
+#### q -> infinity
+![Behaviour as q approaches infinity](plots/slopeqinf_fractalD_avg5seeds.png)
+The expected values (bottom left triangle) should be on the "lighter" range (i.e. higher values) than the experimental results.
+Again, we see better alignment between expectation & experiments for structures with higher fractal dimension D (more horizontal growth mode).
 
 ## Animation:
 This animation is a demonstration of the coral growth among different parameter settings.
