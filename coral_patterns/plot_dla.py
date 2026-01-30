@@ -52,6 +52,7 @@ def plot_mass_radius(
     # fitted curve: M_fit = exp(c) * r^D
     M_fit = [math.exp(c) * (r ** D) for r in r_list]
 
+    # loglog plot generation 
     plt.figure(figsize=(6, 5))
     plt.loglog(r_list, M_list, marker="o", linestyle="None", label="M(r)")
     plt.loglog(r_list, M_fit, linestyle="-", label=f"fit slope D ≈ {D:.3f}")

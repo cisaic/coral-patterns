@@ -3,7 +3,7 @@ DEFAULTS = {
     "launch_margin": 6,
     "kill_margin": 25,
     "max_steps_per_walker": 80_000,
-    "rng_seed": 1,
+    "rng_seed": 40,
     "log_every": 200,
     "growth_mode": -1, # defines whether to grow upward or downward 
     "friendliness": 0, # sparsity preference measure 
@@ -28,6 +28,16 @@ MULTIFRACTALITY_DEFAULTS = {
 }
 
 
-NEIGHBORS4 = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+# NEIGHBORS4 = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 NEIGHBORS8 = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]
 VALID_NEIGHBORS = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0),] 
+
+BASELINE_DEFAULTS = {
+    "target_mass": 1000,
+    "launch_margin": 6,
+    "kill_margin": 25,
+    "max_steps_per_walker": 80_000,
+    "rng_seed": 40,
+    "log_every": 200,
+
+}
