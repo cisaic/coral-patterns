@@ -54,12 +54,107 @@ Files:
 - **genai-usage.md**  
   Documents generative AI tool usage in the project.
 
+- **Presentation-slides.pdf**  
+   Slide deck for project presentation
+
 ## USAGE
 - **scripts/01-run-dla.py**
 
 - **scripts/02-multifractality-experiment.py**
-Demonstrates that the DLA model exhibits multifractality, as described by (Halsey TC. 2000.)
+  Demonstrates that the DLA model exhibits multifractality, as described by (Halsey TC. 2000.)
 
+
+## Introduction
+
+Corals are organisms that consist of colonies of individual polyps. Polyps are small animals that contribute to the coral's growth by dividing and building the coral skeleton. Through a collaborative process, they can create a variety of complex structures, including massive domes, cauliflower-like formations, columns, highly branched structures, and table-like shapes. These structures are emergent properties of coral growth, resulting from the interactions of polyps, which makes corals a clear example of complex systems.
+To investigate coral growth patterns, we use Diffusion-Limited Aggregation (DLA) as a model. DLA is a process in which particles undergo random walks, naturally producing highly branched and fractal clusters. We utilize this property to simulate the growth of different coral structures.
+We implement the coral growth parameters introduced by Llabrés et al 2024. in our DLA-based model to investigate different coral shapes and properties. Llabrés et al. employ an agent-based model to simulate coral colonies, treating polyps as agents. We adjust the growth parameters to the DLA and aim to achieve results comparable to the agent-based model.
+We address the following research questions through a series of experiments:
+
+### Research questions
+1. How do the growth parameters affect the DLA-based coral growth, and do they cause phase transitions in the cluster structure?
+2. Does the DLA-based coral growth show multifractality?
+3. How does the fractal dimension of the coral structure change during growth, and can a power law describe this change?h
+4. Does the growth exhibit power law relationships between features like mass vs. radius?
+
+### Hypotheses
+We aim to test the following hypotheses:
+
+- H1: Varying the growth parameters in the DLA-based coral growth model leads to distinct coral structures and induces phase transitions between these structures.
+- H2: The DLA-based model exhibits multifractality such that different components of the coral structure have different fractal dimensionality.
+- H3: The fractal dimension follows a power law and is governed by fractal scaling.
+- H4: We test whether M(r) scales as a power law with r: M(r)∼r^D. On a log–log plot, this becomes linear: log⁡M = log c + D log⁡r, so the slope provides an estimate of the fractal dimension D.
+
+## 2D Diffusion-Limited-Aggregation
+
+ We start with a single occupied seed at the origin. Then we repeatedly launch a random walker from a circle around the current cluster. The walker performs an unbiased random walk on the 4-neighborhood: up, down, left, right.
+ As soon as the walker reaches the cluster boundary, it sticks and becomes part of the aggregate.
+ To make this efficient, we maintain a frontier set, meaning all empty sites adjacent to the cluster. So, sticking is just: if the walker lands on a frontier site, attach. We then update the frontier locally.
+ We also use a kill radius: if a walker drifts too far away, we re-inject it on the launch circle to avoid wasting computation.
+ This baseline generates the typical branched DLA morphology and serves as our reference before adding directional and compactness biases.
+Second part: Explanation of how the heatmaps + how we rebuilt the structures of the paper: 
+- column vs cauliflower
+Heatmaps:
+- Verticality (height/width).
+- Tips fraction (branchiness proxy).
+ Now that we’ve seen where the growth is tall versus wide, the next question is: how “branchy” is it? That’s what the tips fraction is capturing, since tips are the ends of branches. Here, the dominant pattern switches: friendliness becomes the big control knob. At low friendliness, we get a lot of tips, meaning the cluster is more ramified, with many thin branches. But as friendliness increases, the tips fraction drops pretty steadily, so the structure becomes smoother and more compact, with fewer exposed ends. Growth_mode still has some influence, but the strongest trend is really vertical: going from bottom to top, you move from branchy to compact.
+Mean fractal dimension D.
+And that leads into the fractal dimension, because D is kind of our “summary number” for how space-filling the growth is. Higher D means the cluster fills the plane more efficiently, lower D means it’s more sparse and filament-like. So it makes sense that where friendliness is high, where we already saw fewer tips and more compact shapes, we often get larger D values. And when the growth is either very branchy or very stretched into thin shapes, D tends to drop because the mass is concentrated along narrow structures instead of filling space. So in conclusion, this heatmap matches what we saw in the first two: verticality tells us the direction of growth, tips tell us how ramified it is, and D wraps both of those effects into a scaling metric.
+Showing the structures : 
+Based on the study of the heatmaps, we found simple parameter sets that reliably reproduce the cauliflower and the columnar structures. Keeping friendliness close to 1 makes the growth more compact, and then growth_mode mainly controls the direction: growth_mode ≈ −1 gives a cauliflower-like spread, while growth_mode ≈ +1 produces a tall columnar shape.
+Distribution : 
+For the cauliflower morphology, the cluster is more “space-filling” (lots of side growth and dense structure), so it makes sense that the average fractal dimension is higher (around D≈1.54D \approx 1.54D≈1.54). For the column morphology, the growth is much more constrained and almost one-dimensional, so a lower mean D (around D≈1.06D \approx 1.06D≈1.06) is exactly what we’d expect.
+
+## Power law : 
+
+For the cauliflower-like setting, the mass–radius curve is almost a straight line on the log–log plot, which is exactly what we expect if M(r)M(r)M(r) follows a power law M(r)∝rDM(r)\propto r^DM(r)∝rD. The blue points from one representative run sit close to the dashed ensemble fit, and the shaded ~95% band stays fairly tight, so the estimated exponent is stable across seeds; here we get D≈1.535D \approx 1.535D≈1.535, meaning the structure is relatively space-filling and compact.
+For the column-like setting, we see the same power-law signature, but with a much smaller slope: the ensemble fit gives D≈1.056D \approx 1.056D≈1.056. Again, the representative run follows the mean trend and remains within the uncertainty band, which tells us the mean DDD is consistent and reproducible across different random seeds. The lower DDD matches what we see visually: a thinner, more “line-like” growth compared to the cauliflower case.
+
+## Applying the agent-based network coral parameters (Llabrés et. al 2024) to our DLA model
+2024 Llabres paper built a different model to simulate coral growth using networks, where the polyps are vertices and they’re connected with edges
+5 parameters: Horizontal/vertical growth, Thickness, Branch angle
+
+Our implementation:
+- 2 parameters: Growth / friendliness
+- Address most of the effects governed by original 5 parameters
+- They work by modifying probability of where a new polyp grows from a given site
+- Modifications: No downward growth, seed grows from the "ground"
+
+## Multifractality
+Paper from year 2000 describes theoretical properties of DLA that we show our model exhibits, despite constraints
+Multifractality means distribution of fractal dimension is not the same - tips exhibit different fractal patterns than “smoother” fjords where prob of growing is smaller
+Related to growth prob
+Can empirically measure this by launching a million random walkers at coral and seeing where they stick - for our experiments were limited by compute
+Sum probabilities and raise to exponent
+Equal to mass of coral raised to sigma function 
+Multifractality demonstrated by sigma not being constant - our experimental results reflected this
+3 important relations that we show: Behaviour around q = 1 (straight sum), value at q=3, and behavior as q approaches infinity
+Experimental results are relatively close to theoretical, with better performance on models that exhibit higher overall fractal dimensions
+
+## Animation:
+This animation is a demonstration of the coral growth among different parameter settings.
+You clearly see that the coral tends to grow more upward for positive values of the growth mode.
+The branches are thicker for higher friendliness values.
+Neighborhood:
+Regular DLA’s use either a Moore neighborhood analysis of 8 neighbors, or a von Neumann neighborhood which considers 4 neighbors. For our experiments, we used the DLA implementation considering a Moore neighborhood, but we restricted it to only move upward, since coral does not grow downwards in reality and could not grow into the bottom of the sea. This means that no negative y-values are allowed in our model.
+
+## Power law :
+For the cauliflower-like setting, the mass–radius curve is almost a straight line on the log–log plot, which is exactly what we expect if M(r)M(r)M(r) follows a power law M(r)∝rDM(r)\propto r^DM(r)∝rD. The blue points from one representative run sit close to the dashed ensemble fit, and the shaded ~95% band stays fairly tight, so the estimated exponent is stable across seeds; here we get D≈1.535D \approx 1.535D≈1.535, meaning the structure is relatively space-filling and compact.
+For the column-like setting, we see the same power-law signature, but with a much smaller slope: the ensemble fit gives D≈1.056D \approx 1.056D≈1.056. Again, the representative run follows the mean trend and remains within the uncertainty band, which tells us the mean.
+Power law / neighborhoods:
+For this experiment, we ran 10 different seeds for every target mass and averaged them for more reliable results. In both graphs, the relationship between target mass and radius of the cluster has been plotted and appears to be in a straight line on a log-log scale, which implies the presence of a power law as well. As the datapoints collapse for different target masses, we can conclude that there is a data collapse of and the relationship between target mass and cluster radius is a scale invariant property.
+
+## Limitations
+Only 2D simulations of 3D objects​. → less realistic results
+More equal launch parameters, scaled to the cluster​ → random walker tends to attach to clusterpoints closer to the launching radius
+Structure is highly dependent on the seed ​→ need to observe and average over a lot of observations for reliable outcome
+No "blob" like growths (outwards-in growth instead of inwards-out) → 
+
+## Conclusion 
+H1: There is a continuous phase transition between coral structures spending on parameters such as growth mode and friendliness.
+H2: DLA-based model exhibits multifractality such that different components of the coral structure have different fractal dimensionality.
+H3: fractal dimension follows a power law?
+H4: The relationship between target mass and radius follows the power law and is scale-free. 
 
 # References 
 [1] Llabrés E, Re E, Pluma N, Sintes T, Duarte CM. 2024. A generalized numerical model for clonal growth in scleractinian coral colonies. Proceedings. Biological sciences. 291(2030):20241327. doi:10.1098/rspb.2024.1327. http://dx.doi.org/10.1098/rspb.2024.1327.​
