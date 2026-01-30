@@ -101,9 +101,9 @@ def plot_data_collapse(masses, num_seeds=10):
         # 95% CI band
         ax.fill_between(x, y_lo, y_hi, alpha=0.20)
 
-    ax.set_xlabel(r"$(r / R)^D$")
-    ax.set_ylabel(r"$M(r) / N$")
-    ax.set_title(f"Collapse of scaled mass M(r)/N as a function of scaled radius (r/R)^D in 5-Neighborhood DLA clusters")
+    ax.set_xlabel(r"$(r / R)^D$", fontsize=18)
+    ax.set_ylabel(r"$M(r) / N$", fontsize=18)
+    ax.set_title(f"Mass-radius scaling 5-Moore neighborhood", fontsize=18)
     ax.grid(True, which="both", alpha=0.25)
     ax.legend(fontsize=9)
 
