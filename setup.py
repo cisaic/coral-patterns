@@ -24,6 +24,7 @@ setup(name='coral_patterns',
             "networkx",
             "powerlaw",
             "imageio",
-            "pandas"
+            "pandas",
+            "ipython"
       ],
       )
