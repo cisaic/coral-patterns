@@ -190,6 +190,6 @@ H3: fractal dimension follows a power law?
 H4: The relationship between target mass and radius follows the power law and is scale-free. 
 
 # References 
-[1] Llabrés E, Re E, Pluma N, Sintes T, Duarte CM. 2024. A generalized numerical model for clonal growth in scleractinian coral colonies. Proceedings. Biological sciences. 291(2030):20241327. doi:10.1098/rspb.2024.1327. http://dx.doi.org/10.1098/rspb.2024.1327.​
+[1] Llabrés, Eva, et al. "A generalized numerical model for clonal growth in scleractinian coral colonies." Proceedings of the Royal Society B 291.2030 (2024): 20241327.
 
-[2] Halsey TC. 2000. Diffusion-Limited Aggregation: A Model for Pattern Formation. Physics Today. 53(11):36–41. doi:10.1063/1.1333284. http://dx.doi.org/10.1063/1.1333284.
+[2] Halsey, Thomas C. "Diffusion-limited aggregation: a model for pattern formation." Physics Today 53.11 (2000): 36-41.
