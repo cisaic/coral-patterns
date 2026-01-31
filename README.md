@@ -177,8 +177,11 @@ No "blob" like growths (outwards-in growth instead of inwards-out) →
 
 ## Conclusion 
 H1: There is a continuous phase transition between coral structures spending on parameters such as growth mode and friendliness.
+
 H2: DLA-based model exhibits multifractality such that different components of the coral structure have different fractal dimensionality.
+
 H3: fractal dimension follows a power law?
+
 H4: The relationship between target mass and radius follows the power law and is scale-free. 
 
 # References 
