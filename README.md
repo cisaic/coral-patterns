@@ -118,6 +118,8 @@ Our implementation:
 
 ![Friendliness parameter](images/friendliness-animation.gif)
 ![Growth mode parameter](images/growth-mode-animation.gif)
+![Growth mode sweep](images/growth_mode_sweep.gif)
+![Friendliness sweep](images/friendliness_sweep.gif)
 
 ## Multifractality
 Halsey et al. 2000 describe theoretical properties of DLA that we show our model exhibits, despite the constraints we added to the model.
@@ -147,23 +149,18 @@ Expected value is 1. All values close to 1 with a slight bias. Good to see that 
 The expected values (bottom left triangle) should be on the "lighter" range (i.e. higher values) than the experimental results.
 Again, we see better alignment between expectation & experiments for structures with higher fractal dimension D (more horizontal growth mode).
 
-## Animation:
-
-This animation is a demonstration of the coral growth among different parameter settings.
-You clearly see that the coral tends to grow more upward for positive values of the growth mode.
-The branches are thicker for higher friendliness values.
-
 
 ## Power law :
 
-For the cauliflower-like setting, the mass–radius curve was almost a straight line on the log–log plot, which is exactly what we expect if M(r) satisfies the power law  where $\M(r) \propto r^{D}$. The blue points from one representative run sit close to the dashed ensemble fit, and the shaded ~95% band stays fairly tight, so the estimated exponent is stable across seeds; here we get $D \approx 1.535$, meaning the structure is relatively space-filling and compact.
+For the cauliflower-like setting, the mass–radius curve was almost a straight line on the log–log plot, which is exactly what we expect if M(r) satisfies the power law  where $M(r) \propto r^{D}$. The blue points from one representative run sit close to the dashed ensemble fit, and the shaded ~95% band stays fairly tight, so the estimated exponent is stable across seeds; here we get $D \approx 1.535$, meaning the structure is relatively space-filling and compact.
 For the column-like setting, we see the same power-law signature, but with a much smaller slope: the ensemble fit gives D \approx 1.056. Again, the representative run follows the mean trend and remains within the uncertainty band, which tells us the mean.
 
 
 For the next experiment, we ran 10 different seeds for every target mass and averaged them for more reliable results. In both graphs, the relationship between target mass and radius of the cluster has been plotted and appears to be in a straight line on a log-log scale, which implies the presence of a power law as well. As the datapoints collapse for different target masses, we can conclude that there is a data collapse of and the relationship between target mass and cluster radius is a scale invariant property.
 
-![Friendliness parameter](images/8-Moore-Neighborhood.png)
-![Friendliness parameter](images/5-Moore-Neighborhood.png)
+![8-Neighboorhood](images/8-Moore-Neighborhood.png)
+
+![5-Neighborhood](images/5-Moore-Neighborhood.png)
 
 The fractal dimensionality for our DLA implemenation was around $D \approx 1.300$, which differs from the approximate reference value of $D \approx 1.67$ as described by Halsey TC. 2000. The lower fractile dimensionality of our project is due to the restriction to 5 valid neighbors instead of 8, and due to further implementation of the DLA. When our DLA was implemented with the usual Moore neighborhood, it had a fractal dimensionality of $D \approx 1.600$.
 
