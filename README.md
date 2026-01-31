@@ -109,11 +109,6 @@ Based on the study of the heatmaps, we found simple parameter sets that reliably
 Distribution : 
 For the cauliflower morphology, the cluster is more “space-filling” (lots of side growth and dense structure), so it makes sense that the average fractal dimension is higher (around D≈1.54D \approx 1.54D≈1.54). For the column morphology, the growth is much more constrained and almost one-dimensional, so a lower mean D (around D≈1.06D \approx 1.06D≈1.06) is exactly what we’d expect.
 
-## Power law : 
-
-For the cauliflower-like setting, the mass–radius curve is almost a straight line on the log–log plot, which is exactly what we expect if M(r)M(r)M(r) follows a power law M(r)∝rDM(r)\propto r^DM(r)∝rD. The blue points from one representative run sit close to the dashed ensemble fit, and the shaded ~95% band stays fairly tight, so the estimated exponent is stable across seeds; here we get D≈1.535D \approx 1.535D≈1.535, meaning the structure is relatively space-filling and compact.
-For the column-like setting, we see the same power-law signature, but with a much smaller slope: the ensemble fit gives D≈1.056D \approx 1.056D≈1.056. Again, the representative run follows the mean trend and remains within the uncertainty band, which tells us the mean DDD is consistent and reproducible across different random seeds. The lower DDD matches what we see visually: a thinner, more “line-like” growth compared to the cauliflower case.
-
 ## Applying the agent-based network coral parameters (Llabrés et. al 2024) to our DLA model
 2024 Llabres paper built a different model to simulate coral growth using networks, where the polyps are vertices and they’re connected with edges.
 5 parameters: Horizontal/vertical growth, thickness, branch angle & distance between branches.
@@ -162,27 +157,26 @@ This animation is a demonstration of the coral growth among different parameter 
 You clearly see that the coral tends to grow more upward for positive values of the growth mode.
 The branches are thicker for higher friendliness values.
 
-Neighborhood:
-
-Regular DLA’s use either a Moore neighborhood analysis of 8 neighbors, or a von Neumann neighborhood which considers 4 neighbors. For our experiments, we used the DLA implementation considering a Moore neighborhood, but we restricted it to only move upward, since coral does not grow downwards in reality and could not grow into the bottom of the sea. This means that no negative y-values are allowed in our model.
 
 ## Power law :
 
-For the cauliflower-like setting, the mass–radius curve is almost a straight line on the log–log plot, which is exactly what we expect if M(r)M(r)M(r) follows a power law M(r)∝rDM(r)\propto r^DM(r)∝rD. The blue points from one representative run sit close to the dashed ensemble fit, and the shaded ~95% band stays fairly tight, so the estimated exponent is stable across seeds; here we get D≈1.535D \approx 1.535D≈1.535, meaning the structure is relatively space-filling and compact.
-For the column-like setting, we see the same power-law signature, but with a much smaller slope: the ensemble fit gives D≈1.056D \approx 1.056D≈1.056. Again, the representative run follows the mean trend and remains within the uncertainty band, which tells us the mean.
+For the cauliflower-like setting, the mass–radius curve was almost a straight line on the log–log plot, which is exactly what we expect if M(r) satisfies the power law  where $\M(r) \propto r^{D}$. The blue points from one representative run sit close to the dashed ensemble fit, and the shaded ~95% band stays fairly tight, so the estimated exponent is stable across seeds; here we get $D \approx 1.535$, meaning the structure is relatively space-filling and compact.
+For the column-like setting, we see the same power-law signature, but with a much smaller slope: the ensemble fit gives D \approx 1.056. Again, the representative run follows the mean trend and remains within the uncertainty band, which tells us the mean.
 
-Power law / neighborhoods:
 
-For this experiment, we ran 10 different seeds for every target mass and averaged them for more reliable results. In both graphs, the relationship between target mass and radius of the cluster has been plotted and appears to be in a straight line on a log-log scale, which implies the presence of a power law as well. As the datapoints collapse for different target masses, we can conclude that there is a data collapse of and the relationship between target mass and cluster radius is a scale invariant property.
+For the next experiment, we ran 10 different seeds for every target mass and averaged them for more reliable results. In both graphs, the relationship between target mass and radius of the cluster has been plotted and appears to be in a straight line on a log-log scale, which implies the presence of a power law as well. As the datapoints collapse for different target masses, we can conclude that there is a data collapse of and the relationship between target mass and cluster radius is a scale invariant property.
+
+![Friendliness parameter](images/8-Moore-Neighborhood.png)
+![Friendliness parameter](images/5-Moore-Neighborhood.png)
+
+The fractal dimensionality for our DLA implemenation was around $D \approx 1.300$, which differs from the approximate reference value of $D \approx 1.67$ as described by Halsey TC. 2000. The lower fractile dimensionality of our project is due to the restriction to 5 valid neighbors instead of 8, and due to further implementation of the DLA. When our DLA was implemented with the usual Moore neighborhood, it had a fractal dimensionality of $D \approx 1.600$.
 
 ## Limitations
-Only 2D simulations of 3D objects​. → less realistic results
+1) $\textbf{Dimensionality: }$ The reference model in the Llabrés et al 2024. paper uses a 3D model for simulation, but we used a 2D model due to time constraints. The lack of the third dimension makes out simulations less realistic compared to the real world phenomenom, since the model is simplified.
 
-More equal launch parameters, scaled to the cluster​ → random walker tends to attach to clusterpoints closer to the launching radius
+2) $\textbf{Launch parameter: }$ Due to the implementation of the DLA model, the random walkers are launched from a circle radius around the cluster, and attach by performing the random walk. As the clusters tend to grow more towards the launch radius, the random walkers is nmore likely to attach to clusterpoints close the radius, which causes an attachment bias. 
 
-Structure is highly dependent on the seed ​→ need to observe and average over a lot of observations for reliable outcome
-
-No "blob" like growths (outwards-in growth instead of inwards-out) 
+3) $\textbf{Seed depence: }$ The actual appearance of the cluster is strongly dependent on the seed. To perform a good growth analysis, an experiment needs to average over many seeds to give reliable results about growth behavior. 
 
 ## Conclusion 
 H1: There is a continuous phase transition between coral structures spending on parameters such as growth mode and friendliness.

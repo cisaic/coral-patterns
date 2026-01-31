@@ -11,7 +11,7 @@ def average_over_seeds(N, cfg_base, seeds):
     """
     Run multiple seeds for mass N and return mean curves + 95% CI (for the mean).
     Returns:
-      r_mean, M_mean, M_lo, M_hi, D_mean, R_mean
+    dr_mean, M_mean, M_lo, M_hi, D_mean, R_mean
     """
     r_lists = []
     M_lists = []
@@ -43,7 +43,7 @@ def average_over_seeds(N, cfg_base, seeds):
         M_std = M_arr.std(axis=0, ddof=1)
         se = M_std / math.sqrt(n)
 
-        # 95% CI for mean: normal approx (use 2.262 for n=10 if you prefer t-critical)
+        # 95% CI for mean: normal approx 
         z = 1.96
         M_lo = M_mean - z * se
         M_hi = M_mean + z * se
