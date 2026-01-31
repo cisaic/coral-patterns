@@ -2,6 +2,7 @@ import numpy as np
 from coral_patterns.make_animation import make_param_sweep_animation
 from coral_patterns.simulation import simulate_dla
 from coral_patterns.config import DEFAULTS, PLOT_DEFAULTS
+from IPython.display import HTML
 
 growth_values = np.linspace(-1, 1, 21)
 
@@ -17,7 +18,6 @@ anim_growth = make_param_sweep_animation(
 )
 
 # In Jupyter:
-from IPython.display import HTML
 HTML(anim_growth.to_jshtml())
 
 # friendliness parameter sweep
@@ -34,7 +34,6 @@ anim_friend = make_param_sweep_animation(
     interval_ms=300,
 )
 
-from IPython.display import HTML
 HTML(anim_friend.to_jshtml())
 
 
