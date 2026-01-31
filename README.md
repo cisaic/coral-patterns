@@ -97,11 +97,15 @@ Second part: Explanation of how the heatmaps + how we rebuilt the structures of 
 Heatmaps:
 - Verticality (height/width).
 - Tips fraction (branchiness proxy).
- Now that we’ve seen where the growth is tall versus wide, the next question is: how “branchy” is it? That’s what the tips fraction is capturing, since tips are the ends of branches. Here, the dominant pattern switches: friendliness becomes the big control knob. At low friendliness, we get a lot of tips, meaning the cluster is more ramified, with many thin branches. But as friendliness increases, the tips fraction drops pretty steadily, so the structure becomes smoother and more compact, with fewer exposed ends. Growth_mode still has some influence, but the strongest trend is really vertical: going from bottom to top, you move from branchy to compact.
-Mean fractal dimension D.
-And that leads into the fractal dimension, because D is kind of our “summary number” for how space-filling the growth is. Higher D means the cluster fills the plane more efficiently, lower D means it’s more sparse and filament-like. So it makes sense that where friendliness is high, where we already saw fewer tips and more compact shapes, we often get larger D values. And when the growth is either very branchy or very stretched into thin shapes, D tends to drop because the mass is concentrated along narrow structures instead of filling space. So in conclusion, this heatmap matches what we saw in the first two: verticality tells us the direction of growth, tips tell us how ramified it is, and D wraps both of those effects into a scaling metric.
-Showing the structures : 
+The question is: how “branchy” is it? That’s what the tips fraction is capturing, since tips are the ends of branches. Here, the dominant pattern switches: friendliness becomes the big control knob. At low friendliness, we get a lot of tips, meaning the cluster is more ramified, with many thin branches. But as friendliness increases, the tips fraction drops pretty steadily, so the structure becomes smoother and more compact, with fewer exposed ends. Growth_mode still has some influence, but the strongest trend is really vertical: going from bottom to top, you move from branchy to compact.
+
+Mean fractal dimension D : 
+And the study of these heatmaps lead us to the last heatmap, which is about fractal dimension, because D is our “summary number” for how space-filling the growth is. Higher D means the cluster fills the plane more efficiently, lower D means it’s more sparse and filament-like. So it makes sense that where friendliness is high, where we already saw fewer tips and more compact shapes, we often get larger D values. And when the growth is either very branchy or very stretched into thin shapes, D tends to drop because the mass is concentrated along narrow structures instead of filling space. So in conclusion, this heatmap matches what we saw in the first two: verticality tells us the direction of growth, tips tell us how ramified it is, and D wraps both of those effects into a scaling metric.
+
+Two structures reproduced : Cauliflower and Column
+
 Based on the study of the heatmaps, we found simple parameter sets that reliably reproduce the cauliflower and the columnar structures. Keeping friendliness close to 1 makes the growth more compact, and then growth_mode mainly controls the direction: growth_mode ≈ −1 gives a cauliflower-like spread, while growth_mode ≈ +1 produces a tall columnar shape.
+
 Distribution : 
 For the cauliflower morphology, the cluster is more “space-filling” (lots of side growth and dense structure), so it makes sense that the average fractal dimension is higher (around D≈1.54D \approx 1.54D≈1.54). For the column morphology, the growth is much more constrained and almost one-dimensional, so a lower mean D (around D≈1.06D \approx 1.06D≈1.06) is exactly what we’d expect.
 
