@@ -157,16 +157,22 @@ The expected values (bottom left triangle) should be on the "lighter" range (i.e
 Again, we see better alignment between expectation & experiments for structures with higher fractal dimension D (more horizontal growth mode).
 
 ## Animation:
+
 This animation is a demonstration of the coral growth among different parameter settings.
 You clearly see that the coral tends to grow more upward for positive values of the growth mode.
 The branches are thicker for higher friendliness values.
+
 Neighborhood:
+
 Regular DLA’s use either a Moore neighborhood analysis of 8 neighbors, or a von Neumann neighborhood which considers 4 neighbors. For our experiments, we used the DLA implementation considering a Moore neighborhood, but we restricted it to only move upward, since coral does not grow downwards in reality and could not grow into the bottom of the sea. This means that no negative y-values are allowed in our model.
 
 ## Power law :
+
 For the cauliflower-like setting, the mass–radius curve is almost a straight line on the log–log plot, which is exactly what we expect if M(r)M(r)M(r) follows a power law M(r)∝rDM(r)\propto r^DM(r)∝rD. The blue points from one representative run sit close to the dashed ensemble fit, and the shaded ~95% band stays fairly tight, so the estimated exponent is stable across seeds; here we get D≈1.535D \approx 1.535D≈1.535, meaning the structure is relatively space-filling and compact.
 For the column-like setting, we see the same power-law signature, but with a much smaller slope: the ensemble fit gives D≈1.056D \approx 1.056D≈1.056. Again, the representative run follows the mean trend and remains within the uncertainty band, which tells us the mean.
+
 Power law / neighborhoods:
+
 For this experiment, we ran 10 different seeds for every target mass and averaged them for more reliable results. In both graphs, the relationship between target mass and radius of the cluster has been plotted and appears to be in a straight line on a log-log scale, which implies the presence of a power law as well. As the datapoints collapse for different target masses, we can conclude that there is a data collapse of and the relationship between target mass and cluster radius is a scale invariant property.
 
 ## Limitations
