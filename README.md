@@ -171,9 +171,12 @@ For this experiment, we ran 10 different seeds for every target mass and average
 
 ## Limitations
 Only 2D simulations of 3D objects​. → less realistic results
+
 More equal launch parameters, scaled to the cluster​ → random walker tends to attach to clusterpoints closer to the launching radius
+
 Structure is highly dependent on the seed ​→ need to observe and average over a lot of observations for reliable outcome
-No "blob" like growths (outwards-in growth instead of inwards-out) → 
+
+No "blob" like growths (outwards-in growth instead of inwards-out) 
 
 ## Conclusion 
 H1: There is a continuous phase transition between coral structures spending on parameters such as growth mode and friendliness.
