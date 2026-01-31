@@ -121,6 +121,7 @@ and then my memory issues were fixed.
 - **Prompt**: I want to plot two heat maps in one, where each square is split into two. This is my single heatmap code block (pasted code). 
 I want the bottom-left triange to be the expected value, and the top right hand triangle to be the experimental value. My data is two 2D numpy arrays. 
 I want the respective values to be displayed in each triangle. Add a legend to the bottom explaning which side of the triangle refers to which data source.
+Here is an example: https://stackoverflow.com/questions/63530701/python-package-to-plot-two-heatmaps-in-one-split-each-square-into-two-triangles
 - **Answer**:  Multi-heatmap codeblock that was mostly wrong (wrong triangle directions, ugly formatting, wrong naming, values placed in the wrong area of the triangle)
 Provided a base that allowed me to iterate towards what I actually wanted
 
