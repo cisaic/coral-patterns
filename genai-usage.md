@@ -100,7 +100,7 @@ whether I was on the right track, and it gave me absolute garbage. It wanted to 
 As the coral grows, sum the number of times a site has been hit divided by the total number of walks that have been attempted until that point. 
 Here is my code block (insert code). I don't think I'm calculating this correctly because my probabilities are all uniform??? I am expecting there to be 
 some sites that have higher probability than others, but that's not what I'm seeing
-- **Answer1**: Pseudocode / codeblock fragment, ~50 lines
+- **Answer1**: Pseudocode / codeblock fragment, ~50 lines, plain language explanation (~400 words)
 - **Result**: Helped me identify that I was taking _entirely_ the wrong approach to calculating the growth probability and I had totally misunderstood it.
 Asked follow-up questions like "ahhhh ok so once I have my final cluster, /then/ I calculate pi?"
 
