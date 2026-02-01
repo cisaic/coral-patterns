@@ -59,7 +59,9 @@ Files:
    Demonstrates that the DLA model exhibits multifractality, as described by (Halsey TC. 2000.)
 - **scripts/02-plot-animations.py**: 
    Generating animations that demonstrate 1) how the baseline DLA works, 2) how the parameters (growth_mode, friendliness) modify the neighbourhood attachment probability
-- **scripts/02-plot-animations.py**:
+- **scripts/03-animation.py**: Builds two DLA parameter-sweep animations (one for growth_mode, one for friendliness), shows them as HTML in Jupyter, and saves them as GIFs (growth_mode_sweep.gif and friendliness_sweep.gif).
+- **scripts/04-baseline-data-collapse.py**: For the baseline DLA, demonstrates data collapse for different cluster masses compared to fractal dimension or radius
+- **05-data-collapse.py**:  For the parameterized DLA, demonstrates data collapse for different cluster masses compared to fractal dimension or radius
 - **scripts/06-coral-growth-experiments.py:**
    Generates reproducible coral-growth experiment figures (structures, log–log power-law scaling, D distributions, and parameter-grid heatmaps) and quantifies variability      via multi-seed estimates of fractal dimension D and morphology metrics.
 
@@ -103,6 +105,21 @@ We also use a **kill radius**: if a walker drifts too far away from the cluster,
 
 Overall, this baseline produces the typical branched DLA morphology and serves as a reference model before introducing directional and compactness biases via parameters such as `growth_mode` and `friendliness`.
 
+## Applying the agent-based network coral parameters (Llabrés et. al 2024) to our DLA model
+Llabrés et al. 2024 built a different model to simulate coral growth using networks, where the polyps are vertices and they’re connected with edges.
+They use 5 parameters to control the growth of the structures: Horizontal/vertical growth, growth speed, thickness, branch angle & distance between branches.
+
+Our implementation:
+- We translate the 5 parameters from Llabrés et al. 2024 for the DLA.
+- Introduce 2 parameters: Growth direction (vertical/horizontal) and friendliness (new polyps grow towards or away from existing neighbours).
+- These 2 parameters address most of the effects governed by original 5 parameters (growth direction, branch thickness, branch angle,)
+- They work by modifying probability of where a new polyp grows from a given site
+- Modifications: No downward growth, seed grows from the "ground", no longer use the frontier set, instead random walkers directly select one polyp to grow from on the coral structure
+
+![Friendliness parameter](images/friendliness-animation.gif)
+![Growth mode parameter](images/growth-mode-animation.gif)
+![Growth mode sweep](images/growth_mode_sweep.gif)
+![Friendliness sweep](images/friendliness_sweep.gif)
 
 ## Reproduced structures: cauliflower and columnar
 
@@ -161,23 +178,6 @@ For the **columnar** morphology, growth is strongly constrained upward and remai
 
 #### Columnar — distribution of \(D\)
 ![Distribution of D (columnar)](plots/coral_growth/distributions/distribution_columnar.png)
-
-
-## Applying the agent-based network coral parameters (Llabrés et. al 2024) to our DLA model
-2024 Llabres paper built a different model to simulate coral growth using networks, where the polyps are vertices and they’re connected with edges.
-5 parameters: Horizontal/vertical growth, thickness, branch angle & distance between branches.
-
-Our implementation:
-- We translate the 5 parameters from Llabrés et al. 2024 for the DLA.
-- Introduce 2 parameters: Growth direction (vertical/horizontal) and friendliness (new polyps grow towards or away from existing neighbours).
-- These 2 parameters address most of the effects governed by original 5 parameters (growth direction, branch thickness, branch angle,)
-- They work by modifying probability of where a new polyp grows from a given site
-- Modifications: No downward growth, seed grows from the "ground"
-
-![Friendliness parameter](images/friendliness-animation.gif)
-![Growth mode parameter](images/growth-mode-animation.gif)
-![Growth mode sweep](images/growth_mode_sweep.gif)
-![Friendliness sweep](images/friendliness_sweep.gif)
 
 ## Multifractality
 Halsey et al. 2000 describe theoretical properties of DLA that we show our model exhibits, despite the constraints we added to the model.
