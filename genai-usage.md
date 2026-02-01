@@ -1,7 +1,5 @@
 # GenAI Usage for this project
 
-## Christina Isaicu
-
 **Tool used**: Perplexity research mode (combination of different unspecified models)
 
 ### Initial prompt 
@@ -130,4 +128,52 @@ Provided a base that allowed me to iterate towards what I actually wanted
 ### Documentation
 - (In cursor) Gave explicit instructions to add type hints to function definitions. Manually checked for correctness
 - Doc strings were added manually
+
+# GenAI Usage for this project
+
+**Tool used**: ChatGPT (GPT-5.2 Thinking)
+
+### Initial prompt
+
+I am a master’s student in Computational Science working on a coral-growth project based on DLA.
+I already implemented a DLA model in a previous course assignment, so I am comfortable coding the core loop (seed → walkers → random walk → sticking). I have a math and physics background.
+However, last year I simulated in a finite box with boundary conditions, and for this project I want a setup that behaves more like growth in an effectively unbounded plane.
+Your role:
+- Help me sanity-check algorithmic choices (boundary conditions vs kill radius + reinjection)
+- Explain performance tricks in plain language (frontier set, kill radius)
+- Help me interpret errors when I paste a traceback
+- Keep explanations practical and tied to implementation
+
+### Ideation
+
+Ideation (research questions, hypothesis, plan of action): Done as a team. No GenAI usage.
+
+---
+
+### Understanding
+#### Prompting strategy:
+- Use GenAI to sanity-check implementation choices I was already considering
+- Ask for trade-offs and failure modes (what can bias morphology, what changes runtime)
+- Keep answers conceptual (plain language + pseudocode-level detail), then validate by running locally
+
+#### Example: baseline DLA algorithm + why we use a frontier set and a kill radius
+
+**Context**:
+I had already implemented a DLA model in a previous course assignment, so I was comfortable coding the core loop (seed → walkers → random walk → sticking). However, last year I simulated in a finite box with boundary conditions, and for this project I wanted a setup that behaves more like growth in an effectively unbounded plane. I used GenAI to sanity-check the algorithmic choices and to clarify trade-offs.
+
+- **Prompt1**: “I implemented DLA before in a finite box with boundary conditions. For this project, we want something closer to unbounded growth. Should we still use boundary conditions, or is a kill radius + reinjection better? Explain the trade-offs.”
+- **Output1**: Short conceptual explanation comparing finite-domain simulation (with reflecting/periodic/absorbing boundaries) vs kill radius + reinjection, including likely sources of bias and efficiency implications (~300–500 words).
+- **Result1**: I adopted the reasoning that boundary conditions can bias morphology unless the domain is very large (reflecting walls can cause artificial wall-sticking, periodic boundaries introduce wrap-around effects, absorbing boundaries change effective flux). I therefore kept a kill radius + reinjection approach to approximate unbounded growth while keeping computation focused near the aggregate.
+
+- **Prompt2**: “Explain the frontier set trick and why it makes the simulation faster than checking neighbors every step.”
+- **Output2**: Plain-language explanation + pseudocode-level description (~150–300 words + short code fragment).
+- **Result2**: I adopted the frontier idea: maintain the set of empty sites adjacent to the cluster so sticking becomes a fast membership check, and update the frontier locally after attachment. I used this to justify the optimization choice in documentation.
+
+- **Prompt3**: “What kinds of biases can reflecting / periodic / absorbing boundaries introduce in DLA?”
+- **Output3**: Short list of biases and when they matter (~150–250 words).
+- **Result3**: Helped me write a plausible justification for why we avoided finite-box boundary conditions for the baseline, and why kill radius + reinjection was the better match for our goal.
+
+#### Observations / limitations
+- GenAI was useful for summarizing trade-offs and giving me a clean explanation to reuse in writing.
+- I still validated decisions by running simulations locally and checking that behaviour matched expected DLA morphology.
 
