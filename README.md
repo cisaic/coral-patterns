@@ -127,7 +127,18 @@ The tips fraction measures the proportion of sites that are branch ends (tips). 
 
 ### Mean fractal dimension D
 
-Finally, we compute the mean fractal dimension D because it provides a single “summary number” for how space-filling the growth is through the scaling relation \( M(r) \sim r^D \). Higher D indicates more space-filling (more compact), while lower D corresponds to sparse, filament-like clusters. This matches the other two heatmaps: regions with higher friendliness generally show fewer tips and more compact shapes, which often corresponds to larger D. When growth is very branchy or strongly stretched into thin structures, D tends to drop because the mass is concentrated along narrow paths instead of filling space.
+### Mean fractal dimension \(D\)
+
+Finally, we compute the mean fractal dimension \(D\) because it provides a single “summary number” for how space-filling the growth is. We estimate it from the mass–radius scaling relation:
+
+$$
+M(r) \sim r^{D},
+$$
+
+where \(M(r)\) is the number of occupied sites within radius \(r\) from the origin. Higher \(D\) indicates more space-filling (more compact) growth, while lower \(D\) corresponds to sparse, filament-like clusters.
+
+This matches the other two heatmaps: regions with higher `friendliness` generally show fewer tips and more compact shapes, which often corresponds to larger \(D\). When the growth is very branchy or strongly stretched into thin structures, \(D\) tends to drop because the mass is concentrate
+
 
 ![Heatmap: mean fractal dimension D](plots/coral_growth/heatmaps/heatmap_D_mean.png)
 
