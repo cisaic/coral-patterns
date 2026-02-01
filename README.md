@@ -66,10 +66,16 @@ Files:
 
 ## Introduction
 
-Corals are organisms that consist of colonies of individual polyps. Polyps are small animals that contribute to the coral's growth by dividing and building the coral skeleton. Through a collaborative process, they can create a variety of complex structures, including massive domes, cauliflower-like formations, columns, highly branched structures, and table-like shapes. These structures are emergent properties of coral growth, resulting from the interactions of polyps, which makes corals a clear example of complex systems.
+Corals are organisms that consist of colonies of individual polyps. Polyps are small animals that contribute to the coral's growth by dividing and building the coral skeleton. Understanding how local polyp-level interactions translate into large-scale colony morphology is not only a classic complex-systems question, but also relevant for studying how coral growth may respond to environmental pressure. In particular, having reliable, controllable simulations makes it possible to explore how changes in growth conditions can drive shifts between morphologies and potentially identify thresholds associated with loss of structural complexity or resilience.
+
+Through a collaborative process, polyps can create a variety of complex structures, including massive domes, cauliflower-like formations, columns, highly branched structures, and table-like shapes. These structures are emergent properties of coral growth, resulting from the interactions of polyps, which makes corals a clear example of complex systems.
+
 To investigate coral growth patterns, we use Diffusion-Limited Aggregation (DLA) as a model. DLA is a process in which particles undergo random walks, naturally producing highly branched and fractal clusters. We utilize this property to simulate the growth of different coral structures.
-We implement the coral growth parameters introduced by Llabrés et al 2024. in our DLA-based model to investigate different coral shapes and properties. Llabrés et al. employ an agent-based model to simulate coral colonies, treating polyps as agents. We adjust the growth parameters to the DLA and aim to achieve results comparable to the agent-based model.
+
+We implement the coral growth parameters introduced by Llabrés et al. (2024) in our DLA-based model to investigate different coral shapes and properties. Llabrés et al. employ an agent-based model to simulate coral colonies, treating polyps as agents. We adjust the growth parameters to the DLA and aim to achieve results comparable to the agent-based model.
+
 We address the following research questions through a series of experiments:
+
 
 ### Research questions
 1. How do the growth parameters affect the DLA-based coral growth, and do they cause phase transitions in the cluster structure?
