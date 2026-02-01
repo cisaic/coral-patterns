@@ -64,6 +64,8 @@ Files:
 - **05-data-collapse.py**:  For the parameterized DLA, demonstrates data collapse for different cluster masses compared to fractal dimension or radius
 - **scripts/06-coral-growth-experiments.py:**
    Generates reproducible coral-growth experiment figures (structures, log–log power-law scaling, D distributions, and parameter-grid heatmaps) and quantifies variability      via multi-seed estimates of fractal dimension D and morphology metrics.
+- **test/test_utils.py:**
+  To run the unit tests, make sure your env is activated and run the command "pytest" in the test directory.
 
 
 ## Introduction
