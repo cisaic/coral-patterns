@@ -59,7 +59,11 @@ Files:
    Demonstrates that the DLA model exhibits multifractality, as described by (Halsey TC. 2000.)
 - **scripts/02-plot-animations.py**: 
    Generating animations that demonstrate 1) how the baseline DLA works, 2) how the parameters (growth_mode, friendliness) modify the neighbourhood attachment probability
-- **scripts/02-plot-animations.py**: 
+- **scripts/02-plot-animations.py**:
+- **scripts/06-coral-growth-experiments.py:**
+   Generates reproducible coral-growth experiment figures (structures, log–log power-law scaling, D distributions, and parameter-grid heatmaps) and quantifies variability      via multi-seed estimates of fractal dimension D and morphology metrics.
+
+
 ## Introduction
 
 Corals are organisms that consist of colonies of individual polyps. Polyps are small animals that contribute to the coral's growth by dividing and building the coral skeleton. Through a collaborative process, they can create a variety of complex structures, including massive domes, cauliflower-like formations, columns, highly branched structures, and table-like shapes. These structures are emergent properties of coral growth, resulting from the interactions of polyps, which makes corals a clear example of complex systems.
