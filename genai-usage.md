@@ -129,7 +129,8 @@ Provided a base that allowed me to iterate towards what I actually wanted
 - (In cursor) Gave explicit instructions to add type hints to function definitions. Manually checked for correctness
 - Doc strings were added manually
 
-# GenAI Usage for this project
+
+#### baseline DLA algorithm + why we use a frontier set and a kill radius
 
 **Tool used**: ChatGPT (GPT-5.2 Thinking)
 
@@ -156,6 +157,7 @@ Ideation (research questions, hypothesis, plan of action): Done as a team. No Ge
 - Ask for trade-offs and failure modes (what can bias morphology, what changes runtime)
 - Keep answers conceptual (plain language + pseudocode-level detail), then validate by running locally
 
+- 
 #### Example: baseline DLA algorithm + why we use a frontier set and a kill radius
 
 **Context**:
