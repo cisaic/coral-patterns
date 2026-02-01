@@ -157,7 +157,6 @@ Ideation (research questions, hypothesis, plan of action): Done as a team. No Ge
 - Ask for trade-offs and failure modes (what can bias morphology, what changes runtime)
 - Keep answers conceptual (plain language + pseudocode-level detail), then validate by running locally
 
-- 
 ### Example: baseline DLA algorithm + why we use a frontier set and a kill radius
 
 **Context**:
@@ -179,3 +178,11 @@ I had already implemented a DLA model in a previous course assignment, so I was 
 - GenAI was useful for summarizing trade-offs and giving me a clean explanation to reuse in writing.
 - I still validated decisions by running simulations locally and checking that behaviour matched expected DLA morphology.
 
+# Data collapse
+
+**Model**: ChatGPT 
+
+- **Usage 1:**
+Asked on implementation details of the gif animation and what were the requirements + prepare_scatter, set_scatter based on the output it gave for the initialization.
+- **Usage 2:** For writing average_over_seeds from data_collapse.py: tell me how to average over 10 seeds, given the simulation form in the prompt (simulate_dla function from simulate.py). The average should be taken for 5 target masses, and I want to include the 95% CI bounds for statistical interpretation. This function is highly dependent on AI output
+- **Usage 3:** Asked how to interpret the graph when data is collapsing, and why our fractal dimensionality was 'only around 1.3'. This gave us the clue to investigate the typical Moore neighborhood as well!
