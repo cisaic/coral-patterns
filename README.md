@@ -124,6 +124,8 @@ Our implementation:
 ![Growth mode parameter](images/growth-mode-animation.gif)
 ![Growth mode sweep](images/growth_mode_sweep.gif)
 ![Friendliness sweep](images/friendliness_sweep.gif)
+![Structure columnar (seed=11)](plots/coral_growth/structures/structure_columnar_seed11.png)
+![Structure cauliflower (seed=11)](plots/coral_growth/structures/structure_cauliflower_seed11.png)
 
 ## Multifractality
 Halsey et al. 2000 describe theoretical properties of DLA that we show our model exhibits, despite the constraints we added to the model.
