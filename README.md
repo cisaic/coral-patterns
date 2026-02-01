@@ -212,7 +212,7 @@ For the next experiment, we ran 10 different seeds for every target mass and ave
 
 ![8-Neighboorhood](images/8-Moore-Neighborhood.png)
 
-![5-Neighborhood](images/5-Moore-Neighborhood.png)
+![5-Neighborhood](images/5-Moore-neighborhood.png)
 
 The fractal dimensionality for our DLA implemenation was around $D \approx 1.300$, which differs from the approximate reference value of $D \approx 1.67$ as described by Halsey TC. 2000. The lower fractile dimensionality of our project is due to the restriction to 5 valid neighbors instead of 8, and due to further implementation of the DLA. When our DLA was implemented with the usual Moore neighborhood, it had a fractal dimensionality of $D \approx 1.600$.
 
