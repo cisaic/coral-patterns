@@ -87,27 +87,64 @@ We aim to test the following hypotheses:
 
 ## 2D Diffusion-Limited-Aggregation
 
- We start with a single occupied seed at the origin. Then we repeatedly launch a random walker from a circle around the current cluster. The walker performs an unbiased random walk on the 4-neighborhood: up, down, left, right.
- As soon as the walker reaches the cluster boundary, it sticks and becomes part of the aggregate.
- To make this efficient, we maintain a frontier set, meaning all empty sites adjacent to the cluster. So, sticking is just: if the walker lands on a frontier site, attach. We then update the frontier locally.
- We also use a kill radius: if a walker drifts too far away, we re-inject it on the launch circle to avoid wasting computation.
- This baseline generates the typical branched DLA morphology and serves as our reference before adding directional and compactness biases.
-Second part: Explanation of how the heatmaps + how we rebuilt the structures of the paper: 
-- column vs cauliflower
-Heatmaps:
-- Verticality (height/width).
-- Tips fraction (branchiness proxy).
-The question is: how “branchy” is it? That’s what the tips fraction is capturing, since tips are the ends of branches. Here, the dominant pattern switches: friendliness becomes the big control knob. At low friendliness, we get a lot of tips, meaning the cluster is more ramified, with many thin branches. But as friendliness increases, the tips fraction drops pretty steadily, so the structure becomes smoother and more compact, with fewer exposed ends. Growth_mode still has some influence, but the strongest trend is really vertical: going from bottom to top, you move from branchy to compact.
+## Baseline DLA model
 
-Mean fractal dimension D : 
-And the study of these heatmaps lead us to the last heatmap, which is about fractal dimension, because D is our “summary number” for how space-filling the growth is. Higher D means the cluster fills the plane more efficiently, lower D means it’s more sparse and filament-like. So it makes sense that where friendliness is high, where we already saw fewer tips and more compact shapes, we often get larger D values. And when the growth is either very branchy or very stretched into thin shapes, D tends to drop because the mass is concentrated along narrow structures instead of filling space. So in conclusion, this heatmap matches what we saw in the first two: verticality tells us the direction of growth, tips tell us how ramified it is, and D wraps both of those effects into a scaling metric.
+We start with a single occupied seed at the origin. We then repeatedly release a random walker from a launch circle surrounding the current cluster. The walker performs an unbiased random walk on the 4-neighborhood (up, down, left, right). As soon as the walker reaches the cluster boundary, it sticks and becomes part of the aggregate.
 
-Two structures reproduced : Cauliflower and Column
+To make this efficient, we maintain a **frontier set**, i.e. the set of all empty sites adjacent to the cluster. This turns the sticking check into a constant-time operation: if the walker lands on a frontier site, we attach it immediately, and then update the frontier locally around the new site.
 
-Based on the study of the heatmaps, we found simple parameter sets that reliably reproduce the cauliflower and the columnar structures. Keeping friendliness close to 1 makes the growth more compact, and then growth_mode mainly controls the direction: growth_mode ≈ −1 gives a cauliflower-like spread, while growth_mode ≈ +1 produces a tall columnar shape.
+We also use a **kill radius**: if a walker drifts too far away from the cluster, we re-inject it back onto the launch circle instead of letting it wander indefinitely. This avoids wasting computation on walkers that are unlikely to ever hit the cluster again.
 
-Distribution : 
-For the cauliflower morphology, the cluster is more “space-filling” (lots of side growth and dense structure), so it makes sense that the average fractal dimension is higher (around D≈1.54D \approx 1.54D≈1.54). For the column morphology, the growth is much more constrained and almost one-dimensional, so a lower mean D (around D≈1.06D \approx 1.06D≈1.06) is exactly what we’d expect.
+Overall, this baseline produces the typical branched DLA morphology and serves as a reference model before introducing directional and compactness biases via parameters such as `growth_mode` and `friendliness`.
+
+
+## Reproduced structures: cauliflower and columnar
+
+Based on the study of the heatmaps, we found simple parameter sets that reliably reproduce the cauliflower and the columnar structures. Keeping `friendliness` close to 1 makes the growth more compact, and then `growth_mode` mainly controls the direction: `growth_mode ≈ −1` gives a cauliflower-like spread, while `growth_mode ≈ +1` produces a tall columnar shape.
+
+#### Columnar (seed=11)
+![Structure columnar (seed=11)](plots/coral_growth/structures/structure_columnar_seed11.png)
+
+#### Cauliflower (seed=11)
+![Structure cauliflower (seed=11)](plots/coral_growth/structures/structure_cauliflower_seed11.png)
+
+
+## Heatmaps: how parameters control morphology
+
+To systematically understand how parameters shape the morphology, we ran simulations over a 2D grid in (`growth_mode`, `friendliness`) and summarized each run with simple metrics. The resulting heatmaps show smooth transitions in structure across parameter space.
+
+### Verticality (height/width)
+
+Verticality is defined as *height/width*. It captures whether growth is mainly upward into a tall shape (high verticality) or spreads laterally into a wider shape (low verticality). As expected, `growth_mode` is the main driver: values closer to +1 push growth upward (more column-like), while values closer to −1 favor sideways expansion (more cauliflower-like).
+
+![Heatmap: mean verticality](plots/coral_growth/heatmaps/heatmap_verticality_mean.png)
+
+### Tips fraction (branchiness proxy)
+
+The tips fraction measures the proportion of sites that are branch ends (tips). This directly answers: *how “branchy” is the structure?* Here, `friendliness` becomes the dominant control knob. At low friendliness the cluster stays highly ramified, producing many thin branches and therefore many tips. As friendliness increases, attachment favors more supported, denser locations, so the number of exposed tips decreases and the structure becomes smoother and more compact. `growth_mode` still influences geometry, but the strongest trend is vertical: moving from low to high friendliness transitions from branchy to compact.
+
+![Heatmap: mean tips fraction](plots/coral_growth/heatmaps/heatmap_tipsfrac_mean.png)
+
+### Mean fractal dimension D
+
+Finally, we compute the mean fractal dimension D because it provides a single “summary number” for how space-filling the growth is through the scaling relation \( M(r) \sim r^D \). Higher D indicates more space-filling (more compact), while lower D corresponds to sparse, filament-like clusters. This matches the other two heatmaps: regions with higher friendliness generally show fewer tips and more compact shapes, which often corresponds to larger D. When growth is very branchy or strongly stretched into thin structures, D tends to drop because the mass is concentrated along narrow paths instead of filling space.
+
+![Heatmap: mean fractal dimension D](plots/coral_growth/heatmaps/heatmap_D_mean.png)
+
+## Distribution of fractal dimension D (multi-seed)
+
+To quantify variability across random seeds, we estimate the fractal dimension \(D\) for multiple runs and visualize its distribution.
+
+For the **cauliflower** morphology, growth spreads laterally and produces a more space-filling, dense structure. This is consistent with a higher average fractal dimension, around \(D \approx 1.45\)–\(1.54\) depending on the run settings.
+
+For the **columnar** morphology, growth is strongly constrained upward and remains much closer to a one-dimensional structure. As a result, the mean fractal dimension is lower, typically around \(D \approx 1.06\), which is exactly what we expect for a tall, thin aggregate.
+
+#### Cauliflower — distribution of \(D\)
+![Distribution of D (cauliflower)](plots/coral_growth/distributions/distribution_cauliflower.png)
+
+#### Columnar — distribution of \(D\)
+![Distribution of D (columnar)](plots/coral_growth/distributions/distribution_columnar.png)
+
 
 ## Applying the agent-based network coral parameters (Llabrés et. al 2024) to our DLA model
 2024 Llabres paper built a different model to simulate coral growth using networks, where the polyps are vertices and they’re connected with edges.
@@ -124,8 +161,6 @@ Our implementation:
 ![Growth mode parameter](images/growth-mode-animation.gif)
 ![Growth mode sweep](images/growth_mode_sweep.gif)
 ![Friendliness sweep](images/friendliness_sweep.gif)
-![Structure columnar (seed=11)](plots/coral_growth/structures/structure_columnar_seed11.png)
-![Structure cauliflower (seed=11)](plots/coral_growth/structures/structure_cauliflower_seed11.png)
 
 ## Multifractality
 Halsey et al. 2000 describe theoretical properties of DLA that we show our model exhibits, despite the constraints we added to the model.
