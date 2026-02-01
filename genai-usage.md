@@ -52,7 +52,7 @@ Halsey 2000.
 
 - **Prompt2**: Concisely, help me understand the first scaling relation, and its relevance to multifractality. Ask me questions, and provide examples to help guide my understanding.
 - **Answer2**: "Plain language" explanation, ~300 words.
-- **Result**: I compared went back to the paper and tried to connect the intuition to what I was reading. 
+- **Result**: I went back to the paper and tried to connect the intuition to what I was reading. 
 I actually realized that explanation/equations provided were VERY wrong/unintuitive, so I went back and shared a screenshot instead of a pdf of the equations.
 Turns out it had read the equations incorrectly. The new explanation made so much more sense.
 
@@ -93,7 +93,7 @@ Then, using this knowledge I was able to determine the correct interpolation fac
 Asked follow up questions like: "why use min max scaling instead of normalizing by dividing by total sum? what's the difference?" 
 
 - **Prompt**: (I tried asking a separate unrelated chat how it might go about implementing these two parameters to compare 
-whether I was on the right track, and it gave me absolute garbage. It wanted to use like angles and stuff, in a square grid lattice!! I told it "that's literally insane" and then it gave me attitude. i killed the chat.)
+whether I was on the right track, and it gave me absolute garbage. It wanted to use like angles and stuff, in a square grid lattice!! I told it "that's literally insane" and then it gave me attitude. I killed the chat.)
 
 #### Task: Multifractality
 - **Prompt1**: I am trying to compute the growth probability of my coral. Here is my intuition: 
@@ -110,7 +110,7 @@ I want to us the multiprocessing tool to parallelize the process.
 - **Answer1**: Pseudocode block + code fragments, ~50 lines
 - **Result**: Used my knowledge of parallelization from a previous course to decide what to keep. Asked follow-up questions to understand why I needed a new seed for each parallel process for the random number generator
 - **Prompt2**: Help, when I run the compute_growth_probability_parallelized function, it's eating up my memory!! Help me understand why!
-- **Answer2**: Gave me uuseful garbage. The answer actually came to me as I was trying to fall asleep: I was recording the path for every single random walker which was about 80,000 steps, and I had about 100,000 
+- **Answer2**: Gave me unuseful garbage. The answer actually came to me as I was trying to fall asleep: I was recording the path for every single random walker which was about 80,000 steps, and I had about 100,000 
 random walkers... So I decided to record just the first walk so I could plot an example of what it looks like (I was curious to see how far it was going to understand why the code was taking so long)
 and then my memory issues were fixed.
 
