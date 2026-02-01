@@ -234,11 +234,13 @@ The fractal dimensionality for our DLA implemenation was around $D \approx 1.300
 ## Conclusion 
 H1: There is a continuous phase transition between coral structures spending on parameters such as growth mode and friendliness.
 
-H2: DLA-based model exhibits multifractality such that different components of the coral structure have different fractal dimensionality.
+H2: DLA-based model exhibits multifractality such that different components of the coral structure have different fractal dimensionality. 
 
-H3: fractal dimension follows a power law?
+H3: Fractal dimension follows a power law, but has lower dimension than a "regular" DLA.
 
 H4: The relationship between target mass and radius follows the power law and is scale-free. 
+
+Additional conclusion: There is a data collapse where the relationship between target mass and cluster radius is a scale invariant property.
 
 # References 
 [1] Llabrés, Eva, et al. "A generalized numerical model for clonal growth in scleractinian coral colonies." Proceedings of the Royal Society B 291.2030 (2024): 20241327.
